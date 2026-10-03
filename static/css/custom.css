@@ -616,6 +616,27 @@ body {
     border-color: #3b82f6 !important;
 }
 
+/* Timeline & Recent Activity Dark Mode */
+[data-theme="dark"] .timeline::before, [data-bs-theme="dark"] .timeline::before {
+    background: #22304d !important;
+}
+
+[data-theme="dark"] .timeline-badge, [data-bs-theme="dark"] .timeline-badge {
+    background: #0f172a !important;
+    border-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .timeline-content, [data-bs-theme="dark"] .timeline-content {
+    background-color: #162035 !important;
+    border-color: #22304d !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .timeline-content:hover, [data-bs-theme="dark"] .timeline-content:hover {
+    background-color: #1a2742 !important;
+    border-color: #3b82f6 !important;
+}
+
 [data-theme="dark"] .text-dark, [data-bs-theme="dark"] .text-dark {
     color: #f1f5f9 !important;
 }
