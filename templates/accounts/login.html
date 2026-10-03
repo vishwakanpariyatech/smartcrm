@@ -118,36 +118,6 @@
                 <p class="text-secondary small">Enter your corporate credentials to access your workspace.</p>
             </div>
 
-            <!-- Interactive 1-Click Demo Logins -->
-            <div class="mb-4 p-3 rounded-3" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-bold text-dark" style="font-size: 0.8rem;">
-                        <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Demo Access
-                    </span>
-                    <span class="badge bg-primary-subtle text-primary" style="font-size: 0.68rem;">1-Click Auto-Fill</span>
-                </div>
-                <div class="row g-2">
-                    <div class="col-4">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-2 text-center demo-role-btn bg-white" data-user="admin" data-pass="admin123" title="Auto-fill Admin">
-                            <span class="badge badge-role badge-role-admin py-0 px-1 d-block mb-1" style="font-size: 0.65rem;">Admin</span>
-                            <span class="text-dark small fw-semibold">admin</span>
-                        </button>
-                    </div>
-                    <div class="col-4">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-2 text-center demo-role-btn bg-white" data-user="manager" data-pass="pass123" title="Auto-fill Manager">
-                            <span class="badge badge-role badge-role-manager py-0 px-1 d-block mb-1" style="font-size: 0.65rem;">Manager</span>
-                            <span class="text-dark small fw-semibold">manager</span>
-                        </button>
-                    </div>
-                    <div class="col-4">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-2 text-center demo-role-btn bg-white" data-user="employee" data-pass="pass123" title="Auto-fill Employee">
-                            <span class="badge badge-role badge-role-employee py-0 px-1 d-block mb-1" style="font-size: 0.65rem;">Employee</span>
-                            <span class="text-dark small fw-semibold">employee</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <!-- Form -->
             <form method="POST" novalidate id="loginForm">
                 {% csrf_token %}
@@ -243,21 +213,6 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleIcon.classList.toggle('bi-eye-slash', isPassword);
         });
     }
-
-    // 1-Click Demo Login Auto-Fill
-    document.querySelectorAll('.demo-role-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const user = this.getAttribute('data-user');
-            const pass = this.getAttribute('data-pass');
-            const usernameInput = document.getElementById('id_username');
-            const passInput = document.getElementById('id_password');
-            if (usernameInput && passInput) {
-                usernameInput.value = user;
-                passInput.value = pass;
-                usernameInput.focus();
-            }
-        });
-    });
 });
 </script>
 {% endblock %}
