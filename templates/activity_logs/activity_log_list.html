@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Activity Logs - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">System Activity Audit Trail</h3>
+        <p class="text-muted small mb-0">Security and operations log of all user actions, record changes, and events</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card-crm mb-4">
+    <div class="card-crm-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Search record name or details..." value="{{ query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="model" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Entities</option>
+                    {% for m in models_list %}
+                    <option value="{{ m }}" {% if model_filter == m %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="user" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Users</option>
+                    {% for u in users %}
+                    <option value="{{ u.id }}" {% if user_filter == u.id|stringformat:'s' %}selected{% endif %}>{{ u.display_name }} ({{ u.role }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-funnel me-1"></i> Filter Logs</button>
+                <a href="{% url 'activity_logs:list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Logs Table -->
+<div class="card-crm">
+    <div class="table-responsive">
+        <table class="table table-crm mb-0 small">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Entity</th>
+                    <th>Target Object</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in page_obj %}
+                <tr>
+                    <td class="text-nowrap text-muted">{{ log.timestamp|date:'d-m-Y H:i:s' }}</td>
+                    <td>
+                        {% if log.user %}
+                            <span class="fw-semibold text-dark">{{ log.user.display_name }}</span>
+                            <span class="badge badge-role {% if log.user.role == 'Admin' %}badge-role-admin{% elif log.user.role == 'Manager' %}badge-role-manager{% else %}badge-role-employee{% endif %} py-0 ms-1" style="font-size: 0.65rem;">
+                                {{ log.user.role }}
+                            </span>
+                        {% else %}
+                            <span class="text-muted">System</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if log.action == 'Created' or log.action == 'Created via Conversion' %}bg-success-subtle text-success{% elif log.action == 'Deleted' %}bg-danger-subtle text-danger{% elif log.action == 'Completed' %}bg-primary-subtle text-primary{% else %}bg-secondary-subtle text-secondary{% endif %}">
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td><strong>{{ log.model_name }}</strong></td>
+                    <td>
+                        {% if log.object_id %}<code>{{ log.object_id }}</code> - {% endif %}
+                        <span class="text-dark">{{ log.object_repr }}</span>
+                    </td>
+                    <td class="text-muted">{{ log.details|default:'-' }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="bi bi-journal-x empty-state-icon"></i>
+                            <div class="empty-state-title">No activity logs found</div>
+                            <div class="empty-state-desc">Actions performed across CRM modules will appear in this audit log.</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

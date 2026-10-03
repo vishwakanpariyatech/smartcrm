@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ deal.title }} - Deal Details{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <h3 class="fw-bold text-dark mb-0">{{ deal.title }}</h3>
+            <code>{{ deal.deal_id }}</code>
+            {% if deal.stage == 'Won' %}
+                <span class="badge badge-status badge-status-won">Won</span>
+            {% elif deal.stage == 'Lost' %}
+                <span class="badge badge-status badge-status-lost">Lost</span>
+            {% else %}
+                <span class="badge bg-primary-subtle text-primary">{{ deal.stage }}</span>
+            {% endif %}
+        </div>
+        <p class="text-muted small mb-0">Customer: <a href="{% url 'customers:detail' deal.customer.pk %}" class="fw-semibold">{{ deal.customer.full_name }}</a> | Target: {{ deal.expected_closing_date|date:'d-m-Y' }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <!-- Quick Stage Changers -->
+        {% if deal.stage != 'Won' %}
+        <form action="{% url 'sales:mark_stage' deal.pk %}" method="POST" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="stage" value="Won">
+            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-trophy-fill me-1"></i> Mark as Won</button>
+        </form>
+        {% endif %}
+        {% if deal.stage != 'Lost' %}
+        <form action="{% url 'sales:mark_stage' deal.pk %}" method="POST" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="stage" value="Lost">
+            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Mark this deal as Lost?')"><i class="bi bi-x-circle me-1"></i> Mark as Lost</button>
+        </form>
+        {% endif %}
+        <a href="{% url 'sales:invoice_pdf' deal.pk %}" target="_blank" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> {% if deal.stage == 'Won' %}Tax Invoice PDF{% else %}Quotation PDF{% endif %}
+        </a>
+        <a href="{% url 'sales:edit' deal.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Edit
+        </a>
+        {% if request.user.is_admin_role or request.user.is_manager_role %}
+        <button type="button" class="btn btn-outline-danger btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteConfirmModal"
+                data-delete-url="{% url 'sales:delete' deal.pk %}"
+                data-item-name="{{ deal.title }} ({{ deal.deal_id }})">
+            <i class="bi bi-trash"></i>
+        </button>
+        {% endif %}
+        <a href="{% url 'sales:list' %}" class="btn btn-light border btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Deal Card -->
+    <div class="col-lg-5">
+        <div class="card-crm mb-4">
+            <div class="card-crm-header">
+                <span>Deal Parameters</span>
+            </div>
+            <div class="card-crm-body">
+                <div class="text-center p-3 mb-3 bg-light rounded">
+                    <span class="text-muted small d-block">Contract Value</span>
+                    <h2 class="fw-bold text-success mb-0">₹{{ deal.deal_value|floatformat:2 }}</h2>
+                </div>
+
+                <div class="small">
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-person me-1"></i> Client Account:</span>
+                        <a href="{% url 'customers:detail' deal.customer.pk %}" class="fw-semibold text-decoration-none">{{ deal.customer.full_name }}</a>
+                    </div>
+                    {% if deal.lead %}
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-funnel me-1"></i> Converted Lead:</span>
+                        <a href="{% url 'leads:detail' deal.lead.pk %}" class="text-decoration-none">{{ deal.lead.lead_id }}</a>
+                    </div>
+                    {% endif %}
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-person-badge me-1"></i> Sales Rep:</span>
+                        <strong>{{ deal.assigned_to.display_name }}</strong>
+                    </div>
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-calendar-event me-1"></i> Target Closing:</span>
+                        <span>{{ deal.expected_closing_date|date:'d-m-Y' }}</span>
+                    </div>
+                    {% if deal.actual_closing_date %}
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-calendar-check me-1"></i> Actual Closed Date:</span>
+                        <strong class="text-success">{{ deal.actual_closing_date|date:'d-m-Y' }}</strong>
+                    </div>
+                    {% endif %}
+                    <div class="py-2 d-flex justify-content-between">
+                        <span class="text-muted">Recorded On:</span>
+                        <span>{{ deal.created_at|date:'d-m-Y H:i' }}</span>
+                    </div>
+                </div>
+
+                {% if deal.notes %}
+                <div class="mt-3 pt-2 border-top">
+                    <span class="text-muted small fw-semibold d-block mb-1">Commercial Notes:</span>
+                    <p class="small text-dark mb-0 bg-light p-2 rounded">{{ deal.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="col-lg-7">
+        <div class="card-crm">
+            <div class="card-crm-header">
+                <span>Deal Milestone History</span>
+            </div>
+            <div class="card-crm-body">
+                {% if recent_activities %}
+                <ul class="timeline">
+                    {% for act in recent_activities %}
+                    <li class="timeline-item">
+                        <div class="timeline-badge"></div>
+                        <div class="timeline-content">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="small text-dark">{{ act.action }}</strong>
+                                <small class="text-muted">{{ act.timestamp|date:'d-m-Y H:i' }}</small>
+                            </div>
+                            <p class="small text-muted mb-0">By {{ act.user.display_name|default:'System' }} {% if act.details %} - {{ act.details }}{% endif %}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted small text-center my-4">No activity history recorded for this deal.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

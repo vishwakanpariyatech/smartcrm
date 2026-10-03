@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results: "{{ query }}" - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h3 class="fw-bold text-dark mb-1">Global Search Results</h3>
+    <p class="text-muted small mb-0">Showing {{ total_results }} matches for "<strong>{{ query }}</strong>"</p>
+</div>
+
+{% if total_results > 0 %}
+<div class="row g-4">
+    <!-- Matching Customers -->
+    {% if customers %}
+    <div class="col-12">
+        <div class="card-crm">
+            <div class="card-crm-header">
+                <span><i class="bi bi-people-fill text-primary me-2"></i> Customers ({{ customers|length }})</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Customer</th>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>Phone</th>
+                            <th>City</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in customers %}
+                        <tr>
+                            <td><a href="{% url 'customers:detail' c.pk %}" class="fw-bold text-dark text-decoration-none">{{ c.full_name }}</a></td>
+                            <td><code>{{ c.customer_id }}</code></td>
+                            <td>{{ c.company_name|default:'-' }}</td>
+                            <td>{{ c.phone }}</td>
+                            <td>{{ c.city|default:'-' }}</td>
+                            <td><span class="badge {% if c.status == 'Active' %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %}">{{ c.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Matching Leads -->
+    {% if leads %}
+    <div class="col-12">
+        <div class="card-crm">
+            <div class="card-crm-header">
+                <span><i class="bi bi-funnel-fill text-info me-2"></i> Leads ({{ leads|length }})</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Lead</th>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>Estimated Value</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for l in leads %}
+                        <tr>
+                            <td><a href="{% url 'leads:detail' l.pk %}" class="fw-bold text-dark text-decoration-none">{{ l.full_name }}</a></td>
+                            <td><code>{{ l.lead_id }}</code></td>
+                            <td>{{ l.company|default:'-' }}</td>
+                            <td class="fw-bold">₹{{ l.estimated_deal_value|floatformat:0 }}</td>
+                            <td><span class="badge bg-secondary-subtle text-secondary">{{ l.status }}</span></td>
+                            <td><span class="badge bg-warning-subtle text-warning">{{ l.priority }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Matching Deals -->
+    {% if deals %}
+    <div class="col-12">
+        <div class="card-crm">
+            <div class="card-crm-header">
+                <span><i class="bi bi-currency-rupee text-success me-2"></i> Deals & Sales ({{ deals|length }})</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Deal Title</th>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Value</th>
+                            <th>Stage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in deals %}
+                        <tr>
+                            <td><a href="{% url 'sales:detail' d.pk %}" class="fw-bold text-dark text-decoration-none">{{ d.title }}</a></td>
+                            <td><code>{{ d.deal_id }}</code></td>
+                            <td>{{ d.customer.full_name }}</td>
+                            <td class="fw-bold text-success">₹{{ d.deal_value|floatformat:0 }}</td>
+                            <td><span class="badge bg-primary-subtle text-primary">{{ d.stage }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<div class="card-crm">
+    <div class="empty-state">
+        <i class="bi bi-search empty-state-icon"></i>
+        <div class="empty-state-title">No matching records found</div>
+        <div class="empty-state-desc">We couldn't find any customers, leads, or deals matching "{{ query }}". Try searching with different keywords.</div>
+        <a href="{% url 'dashboard:index' %}" class="btn btn-primary btn-sm">Return to Dashboard</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

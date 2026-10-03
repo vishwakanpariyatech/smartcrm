@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Leads - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Leads Management</h3>
+        <p class="text-muted small mb-0">Capture, qualify, monitor, and convert potential clients</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'leads:pipeline' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-kanban me-1"></i> Kanban Pipeline
+        </a>
+        <a href="{% url 'leads:create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-person-plus-fill me-1"></i> Add Lead
+        </a>
+    </div>
+</div>
+
+<!-- KPI Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ total_count }}</div>
+                <div class="stat-label">Total Leads</div>
+            </div>
+            <div class="stat-icon primary"><i class="bi bi-funnel"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">₹{{ pipeline_value|floatformat:0 }}</div>
+                <div class="stat-label">Active Pipeline Value</div>
+            </div>
+            <div class="stat-icon info"><i class="bi bi-currency-rupee"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ converted_count }}</div>
+                <div class="stat-label">Converted Leads</div>
+            </div>
+            <div class="stat-icon success"><i class="bi bi-check2-circle"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ conversion_rate }}%</div>
+                <div class="stat-label">Conversion Rate</div>
+            </div>
+            <div class="stat-icon warning"><i class="bi bi-graph-up"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Card -->
+<div class="card-crm mb-4">
+    <div class="card-crm-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Search name, email, company..." value="{{ query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for s_val, s_label in statuses %}
+                    <option value="{{ s_val }}" {% if status_filter == s_val %}selected{% endif %}>{{ s_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="source" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Sources</option>
+                    {% for src_val, src_label in sources %}
+                    <option value="{{ src_val }}" {% if source_filter == src_val %}selected{% endif %}>{{ src_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="priority" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Priorities</option>
+                    {% for p_val, p_label in priorities %}
+                    <option value="{{ p_val }}" {% if priority_filter == p_val %}selected{% endif %}>{{ p_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if request.user.is_admin_role or request.user.is_manager_role %}
+            <div class="col-md-2">
+                <select name="employee" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Assignees</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if employee_filter == emp.id|stringformat:'s' %}selected{% endif %}>{{ emp.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-funnel"></i></button>
+                <a href="{% url 'leads:list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Leads Table -->
+<div class="card-crm">
+    <div class="table-responsive">
+        <table class="table table-crm mb-0">
+            <thead>
+                <tr>
+                    <th>Lead</th>
+                    <th>Lead ID</th>
+                    <th>Est. Value</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Source</th>
+                    <th>Assigned To</th>
+                    <th>Follow-up</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lead in page_obj %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-circle" style="width: 36px; height: 36px;">
+                                {{ lead.full_name|first|upper }}
+                            </div>
+                            <div>
+                                <a href="{% url 'leads:detail' lead.pk %}" class="fw-semibold text-dark text-decoration-none d-block">
+                                    {{ lead.full_name }}
+                                </a>
+                                <small class="text-muted">{{ lead.company|default:lead.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><code>{{ lead.lead_id }}</code></td>
+                    <td class="fw-bold">₹{{ lead.estimated_deal_value|floatformat:2 }}</td>
+                    <td>
+                        {% if lead.status == 'New' %}
+                            <span class="badge bg-primary-subtle text-primary">{{ lead.status }}</span>
+                        {% elif lead.status == 'Converted' %}
+                            <span class="badge bg-success-subtle text-success">{{ lead.status }}</span>
+                        {% elif lead.status == 'Lost' %}
+                            <span class="badge bg-danger-subtle text-danger">{{ lead.status }}</span>
+                        {% else %}
+                            <span class="badge bg-warning-subtle text-warning">{{ lead.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if lead.priority == 'High' %}bg-danger{% elif lead.priority == 'Medium' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                            {{ lead.priority }}
+                        </span>
+                    </td>
+                    <td><small class="text-muted">{{ lead.source }}</small></td>
+                    <td>
+                        {% if lead.assigned_to %}
+                            <span class="badge bg-light text-dark border">{{ lead.assigned_to.display_name }}</span>
+                        {% else %}
+                            <span class="text-muted small">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ lead.next_followup_date|date:'d-m-Y'|default:'-' }}</small></td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'leads:detail' lead.pk %}" class="btn btn-light border" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'leads:edit' lead.pk %}" class="btn btn-light border text-primary" title="Edit Lead">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if request.user.is_admin_role or request.user.is_manager_role %}
+                            <button type="button" class="btn btn-light border text-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteConfirmModal"
+                                    data-delete-url="{% url 'leads:delete' lead.pk %}"
+                                    data-item-name="{{ lead.full_name }} ({{ lead.lead_id }})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <i class="bi bi-funnel empty-state-icon"></i>
+                            <div class="empty-state-title">No leads found</div>
+                            <div class="empty-state-desc">Try clearing your filters or capture a new sales lead.</div>
+                            <a href="{% url 'leads:create' %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-person-plus-fill me-1"></i> Add Lead
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

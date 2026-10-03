@@ -1,0 +1,157 @@
+<!-- Universal Quick Add Modal -->
+<div class="modal fade" id="quickAddModal" tabindex="-1" aria-labelledby="quickAddModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+            <div class="modal-header bg-primary text-white py-3 px-4">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-lightning-charge-fill fs-5 text-warning"></i>
+                    <h5 class="modal-title fw-bold mb-0" id="quickAddModalLabel">Quick Add Record</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="bg-light border-bottom px-4 pt-2">
+                <ul class="nav nav-tabs border-0" id="quickAddTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-semibold text-dark border-0 border-bottom border-primary border-3" id="quick-lead-tab" data-bs-toggle="tab" data-bs-target="#quick-lead-pane" type="button" role="tab">
+                            <i class="bi bi-funnel text-primary me-1"></i> New Lead
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-semibold text-secondary border-0" id="quick-task-tab" data-bs-toggle="tab" data-bs-target="#quick-task-pane" type="button" role="tab">
+                            <i class="bi bi-check2-square text-success me-1"></i> New Task
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-semibold text-secondary border-0" id="quick-customer-tab" data-bs-toggle="tab" data-bs-target="#quick-customer-pane" type="button" role="tab">
+                            <i class="bi bi-people text-info me-1"></i> New Customer
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="tab-content" id="quickAddTabContent">
+                    <!-- Tab 1: Lead -->
+                    <div class="tab-pane fade show active" id="quick-lead-pane" role="tabpanel">
+                        <form action="{% url 'dashboard:quick_add' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_type" value="lead">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Lead Full Name *</label>
+                                    <input type="text" name="full_name" class="form-control" placeholder="e.g. Anand Mahindra" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Company Name</label>
+                                    <input type="text" name="company" class="form-control" placeholder="e.g. Mahindra Digital">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Phone Number *</label>
+                                    <input type="text" name="phone" class="form-control" placeholder="+91 98765 43210" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Email Address</label>
+                                    <input type="email" name="email" class="form-control" placeholder="anand@mahindra.biz">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Estimated Value (₹)</label>
+                                    <input type="number" name="deal_value" class="form-control" placeholder="500000" step="1000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Lead Source</label>
+                                    <select name="source" class="form-select">
+                                        <option value="Website">Website</option>
+                                        <option value="Referral">Referral</option>
+                                        <option value="Social Media">Social Media</option>
+                                        <option value="Direct Outreach">Direct Outreach</option>
+                                        <option value="Advertisement">Advertisement</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Priority</label>
+                                    <select name="priority" class="form-select">
+                                        <option value="Medium" selected>Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary px-4"><i class="bi bi-plus-lg me-1"></i> Save Lead</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab 2: Task -->
+                    <div class="tab-pane fade" id="quick-task-pane" role="tabpanel">
+                        <form action="{% url 'dashboard:quick_add' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_type" value="task">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Task Title *</label>
+                                    <input type="text" name="title" class="form-control" placeholder="e.g. Schedule onboarding call with client" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Due Date *</label>
+                                    <input type="date" name="due_date" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Priority</label>
+                                    <select name="priority" class="form-select">
+                                        <option value="Medium" selected>Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Urgent">Urgent</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success px-4"><i class="bi bi-check2 me-1"></i> Create Task</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab 3: Customer -->
+                    <div class="tab-pane fade" id="quick-customer-pane" role="tabpanel">
+                        <form action="{% url 'dashboard:quick_add' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_type" value="customer">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Customer Full Name *</label>
+                                    <input type="text" name="full_name" class="form-control" placeholder="e.g. Sunil Bharti" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Company Name</label>
+                                    <input type="text" name="company_name" class="form-control" placeholder="e.g. Bharti Enterprises">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Email Address *</label>
+                                    <input type="email" name="email" class="form-control" placeholder="sunil@bharti.com" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Phone Number *</label>
+                                    <input type="text" name="phone" class="form-control" placeholder="+91 98111 22334" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">City</label>
+                                    <input type="text" name="city" class="form-control" placeholder="New Delhi">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-info text-white px-4"><i class="bi bi-person-check-fill me-1"></i> Save Customer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

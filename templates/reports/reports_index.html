@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+
+{% block title %}Business Intelligence & Reports - SmartCRM{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    .crm-sidebar, .crm-header, .filter-controls, .btn, .pagination, .no-print {
+        display: none !important;
+    }
+    .crm-main { margin: 0 !important; padding: 0 !important; }
+    .crm-content { padding: 0 !important; }
+    .card-crm { border: 1px solid #ccc !important; box-shadow: none !important; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Reports & Analytics</h3>
+        <p class="text-muted small mb-0">Interactive operational metrics, conversion trends, and financial reports</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i> Print Report
+        </button>
+        <a href="{% url 'reports:export_csv' %}?type={{ report_type }}&from_date={{ from_date }}&to_date={{ to_date }}&employee={{ employee_id }}" class="btn btn-success btn-sm">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<!-- Category Tabs -->
+<div class="card-crm mb-4 filter-controls">
+    <div class="card-crm-body p-2">
+        <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+                <a class="nav-link py-2 small fw-semibold {% if report_type == 'sales' %}active{% endif %}" href="?type=sales">
+                    <i class="bi bi-currency-rupee me-1"></i> Sales & Revenue
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-2 small fw-semibold {% if report_type == 'leads' %}active{% endif %}" href="?type=leads">
+                    <i class="bi bi-funnel me-1"></i> Leads & Conversion
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-2 small fw-semibold {% if report_type == 'customers' %}active{% endif %}" href="?type=customers">
+                    <i class="bi bi-people me-1"></i> Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link py-2 small fw-semibold {% if report_type == 'tasks' %}active{% endif %}" href="?type=tasks">
+                    <i class="bi bi-check2-circle me-1"></i> Task Performance
+                </a>
+            </li>
+            {% if request.user.is_admin_role or request.user.is_manager_role %}
+            <li class="nav-item">
+                <a class="nav-link py-2 small fw-semibold {% if report_type == 'employees' %}active{% endif %}" href="?type=employees">
+                    <i class="bi bi-person-badge me-1"></i> Employee Performance
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card-crm mb-4 filter-controls">
+    <div class="card-crm-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <input type="hidden" name="type" value="{{ report_type }}">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">From Date</label>
+                <input type="date" name="from_date" class="form-control form-control-sm" value="{{ from_date }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">To Date</label>
+                <input type="date" name="to_date" class="form-control form-control-sm" value="{{ to_date }}">
+            </div>
+            {% if request.user.is_admin_role or request.user.is_manager_role %}
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Filter by Assignee</label>
+                <select name="employee" class="form-select form-select-sm">
+                    <option value="">All Team Members</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if employee_id == emp.id|stringformat:'s' %}selected{% endif %}>{{ emp.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-3 align-self-end d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">Apply Filters</button>
+                <a href="{% url 'reports:index' %}?type={{ report_type }}" class="btn btn-outline-secondary btn-sm" title="Clear Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ summary_data.card1_val }}</div>
+                <div class="stat-label">{{ summary_data.card1_label }}</div>
+            </div>
+            <div class="stat-icon primary"><i class="bi bi-bar-chart"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ summary_data.card2_val }}</div>
+                <div class="stat-label">{{ summary_data.card2_label }}</div>
+            </div>
+            <div class="stat-icon success"><i class="bi bi-graph-up"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ summary_data.card3_val }}</div>
+                <div class="stat-label">{{ summary_data.card3_label }}</div>
+            </div>
+            <div class="stat-icon info"><i class="bi bi-layers"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ summary_data.card4_val }}</div>
+                <div class="stat-label">{{ summary_data.card4_label }}</div>
+            </div>
+            <div class="stat-icon warning"><i class="bi bi-check2-circle"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Visualization -->
+<div class="card-crm mb-4">
+    <div class="card-crm-header">
+        <span><i class="bi bi-pie-chart text-primary me-2"></i> {{ report_type|capfirst }} Analytics Visualization</span>
+    </div>
+    <div class="card-crm-body">
+        <canvas id="reportChart" height="260"></canvas>
+    </div>
+</div>
+
+<!-- Detailed Data Records Table -->
+<div class="card-crm">
+    <div class="card-crm-header d-flex justify-content-between align-items-center">
+        <span>Detailed Database Records</span>
+        <small class="text-muted">Showing up to 50 filtered entries</small>
+    </div>
+    <div class="table-responsive">
+        {% if report_type == 'sales' %}
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="bg-light">
+                <tr>
+                    <th>Deal ID</th>
+                    <th>Title</th>
+                    <th>Customer</th>
+                    <th>Value</th>
+                    <th>Stage</th>
+                    <th>Sales Rep</th>
+                    <th>Expected Closing</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in table_rows %}
+                <tr>
+                    <td><code>{{ d.deal_id }}</code></td>
+                    <td><a href="{% url 'sales:detail' d.pk %}" class="fw-semibold text-dark text-decoration-none">{{ d.title }}</a></td>
+                    <td>{{ d.customer.full_name }}</td>
+                    <td class="fw-bold">₹{{ d.deal_value|floatformat:2 }}</td>
+                    <td><span class="badge {% if d.stage == 'Won' %}bg-success{% elif d.stage == 'Lost' %}bg-danger{% else %}bg-primary{% endif %}">{{ d.stage }}</span></td>
+                    <td>{{ d.assigned_to.display_name }}</td>
+                    <td>{{ d.expected_closing_date|date:'d-m-Y' }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-3">No deals found for selected period.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif report_type == 'leads' %}
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="bg-light">
+                <tr>
+                    <th>Lead ID</th>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Source</th>
+                    <th>Est. Value</th>
+                    <th>Status</th>
+                    <th>Assigned Rep</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in table_rows %}
+                <tr>
+                    <td><code>{{ l.lead_id }}</code></td>
+                    <td><a href="{% url 'leads:detail' l.pk %}" class="fw-semibold text-dark text-decoration-none">{{ l.full_name }}</a></td>
+                    <td>{{ l.company }}</td>
+                    <td>{{ l.source }}</td>
+                    <td class="fw-bold">₹{{ l.estimated_deal_value|floatformat:2 }}</td>
+                    <td><span class="badge bg-secondary">{{ l.status }}</span></td>
+                    <td>{{ l.assigned_to.display_name|default:'Unassigned' }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-3">No leads recorded.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif report_type == 'customers' %}
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="bg-light">
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Email</th>
+                    <th>City</th>
+                    <th>Status</th>
+                    <th>Assigned Rep</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in table_rows %}
+                <tr>
+                    <td><code>{{ c.customer_id }}</code></td>
+                    <td><a href="{% url 'customers:detail' c.pk %}" class="fw-semibold text-dark text-decoration-none">{{ c.full_name }}</a></td>
+                    <td>{{ c.company_name|default:'-' }}</td>
+                    <td>{{ c.email }}</td>
+                    <td>{{ c.city|default:'-' }}</td>
+                    <td><span class="badge {% if c.status == 'Active' %}bg-success{% else %}bg-danger{% endif %}">{{ c.status }}</span></td>
+                    <td>{{ c.assigned_to.display_name|default:'Unassigned' }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-3">No customers found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif report_type == 'employees' %}
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="bg-light">
+                <tr>
+                    <th>Employee</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Customers</th>
+                    <th>Leads</th>
+                    <th>Deals Won</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in table_rows %}
+                <tr>
+                    <td><a href="{% url 'employees:detail' emp.pk %}" class="fw-semibold text-dark text-decoration-none">{{ emp.display_name }}</a></td>
+                    <td><span class="badge bg-primary-subtle text-primary">{{ emp.role }}</span></td>
+                    <td>{{ emp.department }}</td>
+                    <td>{{ emp.customers.count }}</td>
+                    <td>{{ emp.leads.count }}</td>
+                    <td class="fw-bold text-success">{{ emp.deals.filter.stage__won.count|default:emp.deals.count }}</td>
+                    <td><span class="badge {% if emp.is_active %}bg-success{% else %}bg-danger{% endif %}">{% if emp.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-3">No employees found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif report_type == 'tasks' %}
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="bg-light">
+                <tr>
+                    <th>Task ID</th>
+                    <th>Title</th>
+                    <th>Assigned To</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in table_rows %}
+                <tr>
+                    <td><code>{{ t.task_id }}</code></td>
+                    <td><a href="{% url 'tasks:detail' t.pk %}" class="fw-semibold text-dark text-decoration-none">{{ t.title }}</a></td>
+                    <td>{{ t.assigned_to.display_name }}</td>
+                    <td><span class="badge bg-secondary">{{ t.priority }}</span></td>
+                    <td><span class="badge bg-info-subtle text-info">{{ t.status }}</span></td>
+                    <td>{{ t.due_date|date:'d-m-Y' }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-3">No tasks found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartLabels = {{ chart_labels|safe }};
+    const chartValues = {{ chart_values|safe }};
+    const reportType = "{{ report_type }}";
+
+    const ctx = document.getElementById('reportChart');
+    if (ctx && chartLabels.length > 0) {
+        let chartType = (reportType === 'leads' || reportType === 'customers') ? 'doughnut' : 'bar';
+
+        new Chart(ctx, {
+            type: chartType,
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Count / Value',
+                    data: chartValues,
+                    backgroundColor: [
+                        '#2563eb', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#64748b'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: chartType === 'doughnut' }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

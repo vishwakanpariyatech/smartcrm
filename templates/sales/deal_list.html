@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Sales & Deals - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Sales & Deals Pipeline</h3>
+        <p class="text-muted small mb-0">Track opportunities, negotiations, expected revenue, and closed deals</p>
+    </div>
+    <a href="{% url 'sales:create' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle-fill me-1"></i> New Deal
+    </a>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">₹{{ total_won_revenue|floatformat:0 }}</div>
+                <div class="stat-label">Won Sales Revenue</div>
+            </div>
+            <div class="stat-icon success"><i class="bi bi-currency-rupee"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">₹{{ pipeline_value|floatformat:0 }}</div>
+                <div class="stat-label">Active Pipeline Value</div>
+            </div>
+            <div class="stat-icon info"><i class="bi bi-hourglass-split"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ won_count }}</div>
+                <div class="stat-label">Deals Closed (Won)</div>
+            </div>
+            <div class="stat-icon primary"><i class="bi bi-trophy"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ win_rate }}%</div>
+                <div class="stat-label">Win Rate</div>
+            </div>
+            <div class="stat-icon purple"><i class="bi bi-pie-chart"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card-crm mb-4">
+    <div class="card-crm-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Search deal title, customer, or ID..." value="{{ query }}">
+            </div>
+            <div class="col-md-3">
+                <select name="stage" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Stages</option>
+                    {% for s_val, s_label in stages %}
+                    <option value="{{ s_val }}" {% if stage_filter == s_val %}selected{% endif %}>{{ s_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if request.user.is_admin_role or request.user.is_manager_role %}
+            <div class="col-md-3">
+                <select name="employee" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Assignees</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if employee_filter == emp.id|stringformat:'s' %}selected{% endif %}>{{ emp.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-funnel"></i></button>
+                <a href="{% url 'sales:list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Deals Table -->
+<div class="card-crm">
+    <div class="table-responsive">
+        <table class="table table-crm mb-0">
+            <thead>
+                <tr>
+                    <th>Deal Title</th>
+                    <th>Deal ID</th>
+                    <th>Customer</th>
+                    <th>Value (₹)</th>
+                    <th>Stage</th>
+                    <th>Assigned To</th>
+                    <th>Target Close</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for deal in page_obj %}
+                <tr>
+                    <td>
+                        <a href="{% url 'sales:detail' deal.pk %}" class="fw-semibold text-dark text-decoration-none d-block">
+                            {{ deal.title }}
+                        </a>
+                        {% if deal.lead %}<small class="text-muted">Lead: {{ deal.lead.lead_id }}</small>{% endif %}
+                    </td>
+                    <td><code>{{ deal.deal_id }}</code></td>
+                    <td>
+                        <a href="{% url 'customers:detail' deal.customer.pk %}" class="text-decoration-none">
+                            {{ deal.customer.full_name }}
+                        </a>
+                    </td>
+                    <td class="fw-bold fs-7">₹{{ deal.deal_value|floatformat:2 }}</td>
+                    <td>
+                        {% if deal.stage == 'Won' %}
+                            <span class="badge badge-status badge-status-won">Won</span>
+                        {% elif deal.stage == 'Lost' %}
+                            <span class="badge badge-status badge-status-lost">Lost</span>
+                        {% elif deal.stage == 'Negotiation' %}
+                            <span class="badge bg-warning-subtle text-warning">Negotiation</span>
+                        {% elif deal.stage == 'Proposal' %}
+                            <span class="badge bg-info-subtle text-info">Proposal</span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary">New</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ deal.assigned_to.display_name }}</span>
+                    </td>
+                    <td><small class="text-muted">{{ deal.expected_closing_date|date:'d-m-Y' }}</small></td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'sales:detail' deal.pk %}" class="btn btn-light border" title="View Deal">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'sales:invoice_pdf' deal.pk %}" target="_blank" class="btn btn-light border text-danger" title="Download {% if deal.stage == 'Won' %}Invoice{% else %}Quote{% endif %} PDF">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </a>
+                            <a href="{% url 'sales:edit' deal.pk %}" class="btn btn-light border text-primary" title="Edit Deal">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if request.user.is_admin_role or request.user.is_manager_role %}
+                            <button type="button" class="btn btn-light border text-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteConfirmModal"
+                                    data-delete-url="{% url 'sales:delete' deal.pk %}"
+                                    data-item-name="{{ deal.title }} ({{ deal.deal_id }})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="bi bi-currency-rupee empty-state-icon"></i>
+                            <div class="empty-state-title">No deals recorded</div>
+                            <div class="empty-state-desc">Create your first deal to start tracking commercial revenues and pipeline.</div>
+                            <a href="{% url 'sales:create' %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-circle-fill me-1"></i> New Deal
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

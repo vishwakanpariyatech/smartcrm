@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In - SmartCRM Enterprise Workspace{% endblock %}
+
+{% block auth_content %}
+<div class="min-vh-100 d-flex flex-column flex-lg-row">
+    <!-- Left Hero & Feature Showcase Panel -->
+    <div class="col-lg-6 col-xl-7 d-none d-lg-flex flex-column justify-content-between p-5 position-relative overflow-hidden" 
+         style="background: linear-gradient(145deg, #090e17 0%, #0f172a 40%, #1e3a8a 100%); color: #ffffff;">
+        
+        <!-- Decorative Ambient Glow Circles -->
+        <div class="position-absolute" style="top: -100px; left: -100px; width: 450px; height: 450px; background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+        <div class="position-absolute" style="bottom: -80px; right: -80px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+
+        <!-- Top Header / Brand -->
+        <div class="position-relative z-1">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; box-shadow: 0 8px 16px rgba(37,99,235,0.4);">
+                    <i class="bi bi-pie-chart-fill"></i>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-0 text-white tracking-tight">SmartCRM</h4>
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.2); font-size: 0.68rem; letter-spacing: 0.05em;">ENTERPRISE SUITE</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Feature Highlights -->
+        <div class="position-relative z-1 my-auto py-5" style="max-width: 620px;">
+            <div class="mb-4">
+                <span class="badge rounded-pill px-3 py-2 text-uppercase mb-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); font-size: 0.75rem; letter-spacing: 0.08em; color: #60a5fa;">
+                    <i class="bi bi-stars me-1 text-warning"></i> Next-Gen Sales & Customer Operations
+                </span>
+                <h1 class="display-6 fw-bold text-white mb-3" style="line-height: 1.25; letter-spacing: -0.02em;">
+                    Empower your team with intelligent customer workflows.
+                </h1>
+                <p class="text-white-50 lead fs-6 mb-4" style="line-height: 1.6;">
+                    Centralize accounts, accelerate lead velocity, monitor deals in real-time, and make data-driven decisions with executive BI analytics.
+                </p>
+            </div>
+
+            <!-- Value Proposition Badges -->
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-kanban text-primary fs-5"></i>
+                            <strong class="text-white small">Kanban Pipeline</strong>
+                        </div>
+                        <small class="text-white-50" style="font-size: 0.8rem;">Visual funnel tracking with 1-click lead conversions.</small>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-graph-up-arrow text-success fs-5"></i>
+                            <strong class="text-white small">Revenue Precision</strong>
+                        </div>
+                        <small class="text-white-50" style="font-size: 0.8rem;">Real-time INR (₹) forecasting with zero double-counting.</small>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-calendar3 text-info fs-5"></i>
+                            <strong class="text-white small">Follow-up Calendar</strong>
+                        </div>
+                        <small class="text-white-50" style="font-size: 0.8rem;">Scheduled calls, demos, and recorded meeting outcomes.</small>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="bi bi-shield-check text-warning fs-5"></i>
+                            <strong class="text-white small">Role-Based Security</strong>
+                        </div>
+                        <small class="text-white-50" style="font-size: 0.8rem;">Server-enforced RBAC for Admins, Managers, and Reps.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Metric Bar -->
+        <div class="position-relative z-1 pt-4 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+            <div class="d-flex align-items-center justify-content-between text-white-50 small">
+                <div>
+                    <span class="text-white fw-bold d-block fs-6">3.4x Faster</span>
+                    <span>Lead Response Rate</span>
+                </div>
+                <div class="border-start ps-3" style="border-color: rgba(255,255,255,0.15) !important;">
+                    <span class="text-white fw-bold d-block fs-6">100% Audit Trail</span>
+                    <span>Activity Logging</span>
+                </div>
+                <div class="border-start ps-3" style="border-color: rgba(255,255,255,0.15) !important;">
+                    <span class="text-white fw-bold d-block fs-6">Enterprise Ready</span>
+                    <span>Multi-Role Architecture</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Authentication Form Panel -->
+    <div class="col-lg-6 col-xl-5 d-flex align-items-center justify-content-center p-4 p-md-5 bg-white">
+        <div style="max-width: 440px; width: 100%;">
+            
+            <!-- Mobile Brand Header (Visible only on small screens) -->
+            <div class="d-lg-none text-center mb-4">
+                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff;" class="mb-2">
+                    <i class="bi bi-pie-chart-fill"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-0">SmartCRM</h4>
+                <small class="text-muted">Enterprise Customer Relationship Management</small>
+            </div>
+
+            <!-- Header -->
+            <div class="mb-4">
+                <h2 class="fw-bold text-dark mb-1">Sign in to CRM</h2>
+                <p class="text-secondary small">Enter your corporate credentials to access your workspace.</p>
+            </div>
+
+            <!-- Interactive 1-Click Demo Logins -->
+            <div class="mb-4 p-3 rounded-3" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold text-dark" style="font-size: 0.8rem;">
+                        <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Demo Access
+                    </span>
+                    <span class="badge bg-primary-subtle text-primary" style="font-size: 0.68rem;">1-Click Auto-Fill</span>
+                </div>
+                <div class="row g-2">
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-2 text-center demo-role-btn bg-white" data-user="admin" data-pass="admin123" title="Auto-fill Admin">
+                            <span class="badge badge-role badge-role-admin py-0 px-1 d-block mb-1" style="font-size: 0.65rem;">Admin</span>
+                            <span class="text-dark small fw-semibold">admin</span>
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-2 text-center demo-role-btn bg-white" data-user="manager" data-pass="pass123" title="Auto-fill Manager">
+                            <span class="badge badge-role badge-role-manager py-0 px-1 d-block mb-1" style="font-size: 0.65rem;">Manager</span>
+                            <span class="text-dark small fw-semibold">manager</span>
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-2 text-center demo-role-btn bg-white" data-user="employee" data-pass="pass123" title="Auto-fill Employee">
+                            <span class="badge badge-role badge-role-employee py-0 px-1 d-block mb-1" style="font-size: 0.65rem;">Employee</span>
+                            <span class="text-dark small fw-semibold">employee</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form method="POST" novalidate id="loginForm">
+                {% csrf_token %}
+
+                <!-- Username / Email Field -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary" style="font-size: 0.825rem;" for="{{ form.username.id_for_label }}">
+                        Username or Email
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 0.5rem 0 0 0.5rem;">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        {{ form.username }}
+                    </div>
+                    {% if form.username.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field with Show/Hide Toggle -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label fw-semibold text-secondary mb-0" style="font-size: 0.825rem;" for="{{ form.password.id_for_label }}">
+                            Password
+                        </label>
+                        <a href="{% url 'accounts:password_reset' %}" class="small text-decoration-none fw-medium text-primary">
+                            Forgot password?
+                        </a>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 0.5rem 0 0 0.5rem;">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        {{ form.password }}
+                        <button class="btn btn-outline-secondary border-start-0 border text-muted" type="button" id="togglePasswordBtn" style="border-radius: 0 0.5rem 0.5rem 0;" title="Show or hide password">
+                            <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.password.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Remember Me Checkbox -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <label class="form-check-label text-muted small" for="rememberMe">
+                            Remember this device
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="border-radius: 0.5rem; font-size: 0.95rem; height: 46px;">
+                    <span>Sign In to Workspace</span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- Bottom Links & Security Badge -->
+            <div class="mt-4 pt-3 border-top text-center text-muted small">
+                <p class="mb-3 text-secondary">
+                    Need a new employee account? 
+                    <a href="{% url 'accounts:register' %}" class="fw-semibold text-decoration-none text-primary">Register here</a>
+                </p>
+
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-light border text-muted" style="font-size: 0.725rem;">
+                    <i class="bi bi-shield-lock-fill text-success"></i>
+                    <span>256-Bit SSL Encrypted Enterprise Workspace</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password Show/Hide Toggle functionality
+    const passwordInput = document.getElementById('id_password');
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+
+    if (passwordInput && toggleBtn && toggleIcon) {
+        toggleBtn.addEventListener('click', function() {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            toggleIcon.classList.toggle('bi-eye', !isPassword);
+            toggleIcon.classList.toggle('bi-eye-slash', isPassword);
+        });
+    }
+
+    // 1-Click Demo Login Auto-Fill
+    document.querySelectorAll('.demo-role-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const user = this.getAttribute('data-user');
+            const pass = this.getAttribute('data-pass');
+            const usernameInput = document.getElementById('id_username');
+            const passInput = document.getElementById('id_password');
+            if (usernameInput && passInput) {
+                usernameInput.value = user;
+                passInput.value = pass;
+                usernameInput.focus();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

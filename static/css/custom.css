@@ -1,0 +1,648 @@
+/* ==========================================================================
+   SmartCRM - Professional Enterprise SaaS Stylesheet
+   ========================================================================== */
+
+:root {
+    --crm-primary: #2563eb;
+    --crm-primary-hover: #1d4ed8;
+    --crm-primary-subtle: #eff6ff;
+    --crm-sidebar-bg: #0f172a;
+    --crm-sidebar-hover: #1e293b;
+    --crm-sidebar-active: #3b82f6;
+    --crm-body-bg: #f8fafc;
+    --crm-card-bg: #ffffff;
+    --crm-border: #e2e8f0;
+    --crm-text-main: #0f172a;
+    --crm-text-muted: #64748b;
+    --crm-success: #10b981;
+    --crm-warning: #f59e0b;
+    --crm-danger: #ef4444;
+    --crm-info: #06b6d4;
+    --crm-radius: 0.75rem;
+    --crm-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --crm-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+    --crm-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+}
+
+body {
+    background-color: var(--crm-body-bg);
+    color: var(--crm-text-main);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ---------------- Layout & Wrapper ---------------- */
+.crm-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* ---------------- Sidebar ---------------- */
+.crm-sidebar {
+    width: 260px;
+    background-color: var(--crm-sidebar-bg);
+    color: #f1f5f9;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s ease-in-out;
+    z-index: 1040;
+}
+
+.crm-sidebar-brand {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crm-sidebar-brand .brand-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.crm-sidebar-menu {
+    list-style: none;
+    padding: 1rem 0.75rem;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.crm-sidebar-section {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    padding: 0.75rem 0.75rem 0.25rem 0.75rem;
+}
+
+.crm-sidebar-item {
+    margin-bottom: 0.25rem;
+}
+
+.crm-sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 0.85rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    gap: 0.75rem;
+}
+
+.crm-sidebar-link i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    color: #94a3b8;
+    transition: color 0.15s ease;
+}
+
+.crm-sidebar-link:hover {
+    background-color: var(--crm-sidebar-hover);
+    color: #ffffff;
+}
+
+.crm-sidebar-link:hover i {
+    color: #60a5fa;
+}
+
+.crm-sidebar-link.active {
+    background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.crm-sidebar-link.active i {
+    color: #ffffff;
+}
+
+.crm-sidebar-user {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ---------------- Main Content & Header ---------------- */
+.crm-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: var(--crm-body-bg);
+}
+
+.crm-header {
+    background-color: var(--crm-card-bg);
+    border-bottom: 1px solid var(--crm-border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.crm-search-box {
+    position: relative;
+    max-width: 380px;
+    width: 100%;
+}
+
+.crm-search-box input {
+    padding-left: 2.5rem;
+    background-color: #f1f5f9;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.crm-search-box input:focus {
+    background-color: #ffffff;
+    border-color: var(--crm-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.crm-search-box .search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.crm-content {
+    padding: 1.75rem;
+    flex-grow: 1;
+}
+
+/* ---------------- Cards & Widgets ---------------- */
+.card-crm {
+    background-color: var(--crm-card-bg);
+    border: 1px solid var(--crm-border);
+    border-radius: var(--crm-radius);
+    box-shadow: var(--crm-shadow-sm);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-crm:hover {
+    box-shadow: var(--crm-shadow);
+}
+
+.card-crm-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--crm-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    background: transparent;
+}
+
+.card-crm-body {
+    padding: 1.25rem;
+}
+
+/* Stat Cards */
+.stat-card {
+    border-radius: var(--crm-radius);
+    padding: 1.25rem;
+    background: #ffffff;
+    border: 1px solid var(--crm-border);
+    box-shadow: var(--crm-shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--crm-shadow);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.stat-icon.primary { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
+.stat-icon.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.stat-icon.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.stat-icon.danger  { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.stat-icon.info    { background: rgba(6, 182, 212, 0.1); color: #06b6d4; }
+.stat-icon.purple  { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+.stat-val {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--crm-text-main);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.825rem;
+    font-weight: 500;
+    color: var(--crm-text-muted);
+}
+
+/* ---------------- Badges & Pills ---------------- */
+.badge-role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 9999px;
+}
+.badge-role-admin { background-color: #fee2e2; color: #dc2626; }
+.badge-role-manager { background-color: #fef3c7; color: #d97706; }
+.badge-role-employee { background-color: #dbeafe; color: #2563eb; }
+
+.badge-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.badge-status::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.badge-status-active, .badge-status-won, .badge-status-completed {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+.badge-status-pending, .badge-status-new, .badge-status-in-progress {
+    background-color: #fef9c3;
+    color: #a16207;
+}
+.badge-status-inactive, .badge-status-lost, .badge-status-cancelled {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+.badge-status-qualified, .badge-status-interested {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+/* ---------------- Tables ---------------- */
+.table-crm {
+    width: 100%;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+.table-crm thead th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--crm-border);
+}
+
+.table-crm tbody td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.875rem;
+    color: var(--crm-text-main);
+}
+
+.table-crm tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ---------------- Kanban Board ---------------- */
+.kanban-board {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding-bottom: 1.5rem;
+}
+
+.kanban-column {
+    flex: 0 0 310px;
+    background-color: #f1f5f9;
+    border-radius: var(--crm-radius);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 220px);
+}
+
+.kanban-column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.kanban-cards {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-grow: 1;
+    min-height: 100px;
+}
+
+.kanban-card {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kanban-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ---------------- Empty States ---------------- */
+.empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.empty-state-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-desc {
+    color: #64748b;
+    font-size: 0.9rem;
+    max-width: 400px;
+    margin: 0 auto 1.25rem auto;
+}
+
+/* ---------------- Activity Timeline ---------------- */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+    list-style: none;
+    margin: 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 8px;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: -2rem;
+    top: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3px solid var(--crm-primary);
+}
+
+.timeline-content {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.85rem;
+}
+
+/* ---------------- Avatar ---------------- */
+.avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    color: #3730a3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+}
+
+/* ---------------- Responsive Sidebar ---------------- */
+@media (max-width: 991.98px) {
+    .crm-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -260px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+    .crm-sidebar.show {
+        left: 0;
+    }
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        z-index: 1030;
+        display: none;
+    }
+    .sidebar-overlay.show {
+        display: block;
+    }
+}
+
+/* ==========================================================================
+   Dark Mode Styles ([data-theme="dark"] & [data-bs-theme="dark"])
+   ========================================================================== */
+[data-theme="dark"], [data-bs-theme="dark"] {
+    --crm-body-bg: #0b0f19;
+    --crm-card-bg: #131b2e;
+    --crm-border: #22304d;
+    --crm-text-main: #f1f5f9;
+    --crm-text-muted: #94a3b8;
+    --crm-primary-subtle: rgba(37, 99, 235, 0.15);
+    --crm-sidebar-bg: #070a12;
+}
+
+[data-theme="dark"] body, [data-bs-theme="dark"] body {
+    background-color: #0b0f19 !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .crm-main, [data-bs-theme="dark"] .crm-main {
+    background-color: #0b0f19 !important;
+}
+
+[data-theme="dark"] .card-crm, [data-bs-theme="dark"] .card-crm {
+    background-color: #131b2e !important;
+    border-color: #22304d !important;
+}
+
+[data-theme="dark"] .card-crm-header, [data-bs-theme="dark"] .card-crm-header {
+    background-color: #162035 !important;
+    border-bottom-color: #22304d !important;
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .table-crm, [data-bs-theme="dark"] .table-crm {
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .table-crm thead th, [data-bs-theme="dark"] .table-crm thead th {
+    background-color: #162035 !important;
+    color: #94a3b8 !important;
+    border-bottom-color: #22304d !important;
+}
+
+[data-theme="dark"] .table-crm tbody tr:hover, [data-bs-theme="dark"] .table-crm tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-theme="dark"] .crm-header, [data-bs-theme="dark"] .crm-header {
+    background-color: #131b2e !important;
+    border-bottom-color: #22304d !important;
+}
+
+[data-theme="dark"] .form-control, [data-bs-theme="dark"] .form-control,
+[data-theme="dark"] .form-select, [data-bs-theme="dark"] .form-select {
+    background-color: #162035 !important;
+    border-color: #2a3b5c !important;
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .form-control:focus, [data-bs-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus, [data-bs-theme="dark"] .form-select:focus {
+    background-color: #1a2742 !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .form-control::placeholder, [data-bs-theme="dark"] .form-control::placeholder {
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .dropdown-menu, [data-bs-theme="dark"] .dropdown-menu {
+    background-color: #131b2e !important;
+    border-color: #22304d !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .dropdown-item, [data-bs-theme="dark"] .dropdown-item {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover, [data-bs-theme="dark"] .dropdown-item:hover {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .stat-card, [data-bs-theme="dark"] .stat-card {
+    background-color: #131b2e !important;
+    border-color: #22304d !important;
+}
+
+[data-theme="dark"] .stat-val, [data-bs-theme="dark"] .stat-val {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .kanban-column, [data-bs-theme="dark"] .kanban-column {
+    background-color: #101726 !important;
+    border-color: #22304d !important;
+}
+
+[data-theme="dark"] .kanban-card, [data-bs-theme="dark"] .kanban-card {
+    background-color: #17233b !important;
+    border-color: #27395c !important;
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .kanban-card:hover, [data-bs-theme="dark"] .kanban-card:hover {
+    border-color: #3b82f6 !important;
+}
+
+[data-theme="dark"] .text-dark, [data-bs-theme="dark"] .text-dark {
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .bg-light, [data-bs-theme="dark"] .bg-light {
+    background-color: #162035 !important;
+}
+
+[data-theme="dark"] .modal-content, [data-bs-theme="dark"] .modal-content {
+    background-color: #131b2e !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .list-group-item, [data-bs-theme="dark"] .list-group-item {
+    background-color: #131b2e !important;
+    border-color: #22304d !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .btn-light, [data-bs-theme="dark"] .btn-light {
+    background-color: #1c2742 !important;
+    border-color: #22304d !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .btn-light:hover, [data-bs-theme="dark"] .btn-light:hover {
+    background-color: #253354 !important;
+    color: #ffffff !important;
+}
+

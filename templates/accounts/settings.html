@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}System Settings - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h3 class="fw-bold text-dark mb-1">System Settings & Configuration</h3>
+    <p class="text-muted small mb-0">Overview of CRM runtime settings, regional configurations, and integration status</p>
+</div>
+
+<div class="row g-4">
+    <!-- General Settings -->
+    <div class="col-lg-6">
+        <div class="card-crm h-100">
+            <div class="card-crm-header">
+                <span><i class="bi bi-sliders me-2 text-primary"></i> Application Configuration</span>
+            </div>
+            <div class="card-crm-body">
+                <table class="table table-borderless table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted py-2">System Name:</td>
+                            <td class="fw-semibold text-dark py-2">{{ app_name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted py-2">Currency Standard:</td>
+                            <td class="fw-semibold text-dark py-2"><span class="badge bg-primary-subtle text-primary">{{ currency }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted py-2">System Timezone:</td>
+                            <td class="fw-semibold text-dark py-2"><span class="badge bg-secondary-subtle text-secondary">{{ timezone }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted py-2">Date Format:</td>
+                            <td class="fw-semibold text-dark py-2"><code class="text-dark">{{ date_format }}</code></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted py-2">Active Database:</td>
+                            <td class="fw-semibold text-dark py-2"><span class="badge bg-success-subtle text-success">{{ db_engine|upper }}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Communication & Email Settings -->
+    <div class="col-lg-6">
+        <div class="card-crm h-100">
+            <div class="card-crm-header">
+                <span><i class="bi bi-envelope-gear me-2 text-info"></i> Email & Notifications</span>
+            </div>
+            <div class="card-crm-body">
+                <p class="text-muted small mb-3">
+                    In development mode, outgoing emails (such as password reset tokens) are written to the Django console backend without requiring external SMTP credentials.
+                </p>
+                <table class="table table-borderless table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted py-2">Email Backend:</td>
+                            <td class="fw-semibold text-dark py-2"><code>{{ email_backend }}</code></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted py-2">In-App Notifications:</td>
+                            <td class="fw-semibold text-success py-2"><i class="bi bi-check-circle-fill me-1"></i> Enabled</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted py-2">Activity Audit Logging:</td>
+                            <td class="fw-semibold text-success py-2"><i class="bi bi-check-circle-fill me-1"></i> Active (Full Trail)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ customer.full_name }} - Customer Details{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <h3 class="fw-bold text-dark mb-0">{{ customer.full_name }}</h3>
+            <code>{{ customer.customer_id }}</code>
+            {% if customer.status == 'Active' %}
+                <span class="badge badge-status badge-status-active">Active</span>
+            {% else %}
+                <span class="badge badge-status badge-status-inactive">Inactive</span>
+            {% endif %}
+        </div>
+        <p class="text-muted small mb-0">{{ customer.company_name|default:'Individual Account' }} | Created: {{ customer.created_at|date:'d-m-Y' }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'sales:create' %}?customer={{ customer.pk }}" class="btn btn-success btn-sm">
+            <i class="bi bi-currency-rupee me-1"></i> New Deal
+        </a>
+        <a href="{% url 'followups:create' %}?customer={{ customer.pk }}" class="btn btn-info text-white btn-sm">
+            <i class="bi bi-telephone-plus me-1"></i> Log Follow-up
+        </a>
+        <a href="{% url 'tasks:create' %}?customer={{ customer.pk }}" class="btn btn-warning text-dark btn-sm">
+            <i class="bi bi-plus-square me-1"></i> Add Task
+        </a>
+        <a href="{% url 'customers:edit' customer.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Edit
+        </a>
+        {% if request.user.is_admin_role or request.user.is_manager_role %}
+        <button type="button" class="btn btn-outline-danger btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteConfirmModal"
+                data-delete-url="{% url 'customers:delete' customer.pk %}"
+                data-item-name="{{ customer.full_name }} ({{ customer.customer_id }})">
+            <i class="bi bi-trash"></i>
+        </button>
+        {% endif %}
+        <a href="{% url 'customers:list' %}" class="btn btn-light border btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Customer Profile Sidebar -->
+    <div class="col-lg-4">
+        <div class="card-crm mb-4">
+            <div class="card-crm-header">
+                <span>Account Profile</span>
+            </div>
+            <div class="card-crm-body">
+                <div class="text-center mb-3">
+                    <div class="avatar-circle mx-auto mb-2" style="width: 72px; height: 72px; font-size: 1.8rem;">
+                        {{ customer.full_name|first|upper }}
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ customer.full_name }}</h5>
+                    <span class="text-muted small">{{ customer.company_name|default:'Independent Customer' }}</span>
+                </div>
+
+                <!-- 1-Click WhatsApp & Direct Email Trigger -->
+                <div class="d-grid gap-2 mb-3">
+                    <a href="https://wa.me/{{ customer.phone|cut:' '|cut:'+'|cut:'-'|cut:'(' |cut:')' }}?text=Hello%20{{ customer.full_name|urlencode }}%2C%20this%20is%20{{ request.user.display_name|urlencode }}%20from%20SmartCRM.%20Hope%20you%20are%20doing%20well!" target="_blank" class="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-whatsapp"></i> Chat on WhatsApp
+                    </a>
+                    <a href="mailto:{{ customer.email }}?subject=Connecting%20from%20SmartCRM&body=Hi%20{{ customer.full_name|urlencode }}%2C%0A%0AHope%20you%20are%20having%20a%20productive%20day.%0A%0ABest%20regards%2C%0A{{ request.user.display_name|urlencode }}" class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-envelope-fill"></i> Send Direct Email
+                    </a>
+                </div>
+
+                <div class="small">
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-envelope me-1"></i> Email:</span>
+                        <a href="mailto:{{ customer.email }}" class="text-decoration-none">{{ customer.email }}</a>
+                    </div>
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-telephone me-1"></i> Phone:</span>
+                        <a href="tel:{{ customer.phone }}" class="text-decoration-none">{{ customer.phone }}</a>
+                    </div>
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-person-badge me-1"></i> Assigned To:</span>
+                        <strong>{{ customer.assigned_to.display_name|default:'Unassigned' }}</strong>
+                    </div>
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-bullseye me-1"></i> Source:</span>
+                        <span>{{ customer.source }}</span>
+                    </div>
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-geo-alt me-1"></i> City / State:</span>
+                        <span>{{ customer.city|default:'-' }}{% if customer.state %}, {{ customer.state }}{% endif %}</span>
+                    </div>
+                    <div class="py-2 border-bottom d-flex justify-content-between">
+                        <span class="text-muted">Postal Code:</span>
+                        <span>{{ customer.postal_code|default:'-' }}</span>
+                    </div>
+                    <div class="py-2 d-flex justify-content-between">
+                        <span class="text-muted">Updated:</span>
+                        <span>{{ customer.updated_at|date:'d-m-Y H:i' }}</span>
+                    </div>
+                </div>
+
+                {% if customer.address %}
+                <div class="mt-3 pt-2 border-top">
+                    <span class="text-muted small fw-semibold d-block mb-1">Street Address:</span>
+                    <p class="small text-dark mb-0">{{ customer.address }}</p>
+                </div>
+                {% endif %}
+
+                {% if customer.notes %}
+                <div class="mt-3 pt-2 border-top">
+                    <span class="text-muted small fw-semibold d-block mb-1">Initial Notes:</span>
+                    <p class="small text-dark mb-0 bg-light p-2 rounded">{{ customer.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Details & Tabs -->
+    <div class="col-lg-8">
+        <div class="card-crm">
+            <div class="card-crm-body p-0">
+                <ul class="nav nav-tabs px-3 pt-2" id="customerTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="deals-tab" data-bs-toggle="tab" data-bs-target="#deals-panel" type="button">
+                            Deals & Purchases ({{ deals.count }})
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="followups-tab" data-bs-toggle="tab" data-bs-target="#followups-panel" type="button">
+                            Follow-ups ({{ followups.count }})
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks-panel" type="button">
+                            Tasks ({{ tasks.count }})
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-panel" type="button">
+                            Notes ({{ notes.count }})
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-panel" type="button">
+                            Activity History
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content p-3" id="customerTabContent">
+                    <!-- Deals Tab -->
+                    <div class="tab-pane fade show active" id="deals-panel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Deals & Revenue</h6>
+                            <a href="{% url 'sales:create' %}?customer={{ customer.pk }}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i> Add Deal
+                            </a>
+                        </div>
+                        {% if deals %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Deal ID</th>
+                                        <th>Title</th>
+                                        <th>Value</th>
+                                        <th>Stage</th>
+                                        <th>Target Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for deal in deals %}
+                                    <tr>
+                                        <td><code>{{ deal.deal_id }}</code></td>
+                                        <td><a href="{% url 'sales:detail' deal.pk %}" class="fw-semibold text-decoration-none">{{ deal.title }}</a></td>
+                                        <td class="fw-bold">₹{{ deal.deal_value|floatformat:2 }}</td>
+                                        <td>
+                                            <span class="badge {% if deal.stage == 'Won' %}bg-success{% elif deal.stage == 'Lost' %}bg-danger{% else %}bg-primary{% endif %}">
+                                                {{ deal.stage }}
+                                            </span>
+                                        </td>
+                                        <td><small class="text-muted">{{ deal.expected_closing_date|date:'d-m-Y' }}</small></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted small text-center my-4">No deals recorded for this customer yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Follow-ups Tab -->
+                    <div class="tab-pane fade" id="followups-panel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Follow-up History</h6>
+                            <a href="{% url 'followups:create' %}?customer={{ customer.pk }}" class="btn btn-outline-info btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i> Log Follow-up
+                            </a>
+                        </div>
+                        {% if followups %}
+                        <div class="list-group list-group-flush">
+                            {% for f in followups %}
+                            <div class="list-group-item px-0 py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-semibold">{{ f.followup_type }}: {{ f.description|truncatechars:60 }}</span>
+                                    <span class="badge {% if f.status == 'Completed' %}bg-success{% elif f.is_overdue %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                        {{ f.status }}
+                                    </span>
+                                </div>
+                                <div class="small text-muted mt-1">
+                                    Date: {{ f.followup_date|date:'d-m-Y' }} {% if f.followup_time %}at {{ f.followup_time|time:'H:i' }}{% endif %} | Assigned to: {{ f.assigned_to.display_name }}
+                                </div>
+                                {% if f.outcome %}
+                                <div class="small text-dark mt-1 bg-light p-1 rounded">
+                                    <strong>Outcome:</strong> {{ f.outcome }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small text-center my-4">No follow-ups recorded.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tasks Tab -->
+                    <div class="tab-pane fade" id="tasks-panel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Customer Tasks</h6>
+                            <a href="{% url 'tasks:create' %}?customer={{ customer.pk }}" class="btn btn-outline-warning text-dark btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i> Add Task
+                            </a>
+                        </div>
+                        {% if tasks %}
+                        <div class="list-group list-group-flush">
+                            {% for t in tasks %}
+                            <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="{% url 'tasks:detail' t.pk %}" class="fw-semibold text-dark text-decoration-none">{{ t.title }}</a>
+                                    <div class="small text-muted">Due: {{ t.due_date|date:'d-m-Y' }} | Assigned: {{ t.assigned_to.display_name }}</div>
+                                </div>
+                                <span class="badge {% if t.status == 'Completed' %}bg-success{% elif t.is_overdue %}bg-danger{% else %}bg-primary{% endif %}">
+                                    {{ t.status }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small text-center my-4">No pending tasks for this customer.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Notes Tab -->
+                    <div class="tab-pane fade" id="notes-panel">
+                        <div class="mb-4">
+                            <form action="{% url 'customers:add_note' customer.pk %}" method="POST">
+                                {% csrf_token %}
+                                {{ note_form.content }}
+                                <div class="text-end mt-2">
+                                    <button type="submit" class="btn btn-primary btn-sm">Post Note</button>
+                                </div>
+                            </form>
+                        </div>
+                        {% if notes %}
+                        <div class="list-group list-group-flush">
+                            {% for note in notes %}
+                            <div class="list-group-item px-0 py-2">
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <strong>{{ note.author.display_name|default:'Unknown' }}</strong>
+                                    <span>{{ note.created_at|date:'d-m-Y H:i' }}</span>
+                                </div>
+                                <div class="small text-dark">{{ note.content|linebreaks }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small text-center my-3">No account notes yet.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Activity History Tab -->
+                    <div class="tab-pane fade" id="timeline-panel">
+                        {% if recent_activities %}
+                        <ul class="timeline mt-3">
+                            {% for act in recent_activities %}
+                            <li class="timeline-item">
+                                <div class="timeline-badge"></div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <strong class="small text-dark">{{ act.action }}</strong>
+                                        <small class="text-muted">{{ act.timestamp|date:'d-m-Y H:i' }}</small>
+                                    </div>
+                                    <p class="small text-muted mb-0">By {{ act.user.display_name|default:'System' }} {% if act.details %} - {{ act.details }}{% endif %}</p>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-muted small text-center my-4">No recorded activities.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

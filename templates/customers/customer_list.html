@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Customers - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Customer Accounts</h3>
+        <p class="text-muted small mb-0">Manage customer records, contact info, accounts, and history</p>
+    </div>
+    <a href="{% url 'customers:create' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-person-plus-fill me-1"></i> Add Customer
+    </a>
+</div>
+
+<!-- Filters Card -->
+<div class="card-crm mb-4">
+    <div class="card-crm-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Search name, email, phone, company..." value="{{ query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for s_val, s_label in statuses %}
+                    <option value="{{ s_val }}" {% if status_filter == s_val %}selected{% endif %}>{{ s_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="text" name="city" class="form-control form-control-sm" placeholder="Filter by City" value="{{ city_filter }}">
+            </div>
+            {% if request.user.is_admin_role or request.user.is_manager_role %}
+            <div class="col-md-2">
+                <select name="employee" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Assignees</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if employee_filter == emp.id|stringformat:'s' %}selected{% endif %}>{{ emp.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-2">
+                <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest First</option>
+                    <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Oldest First</option>
+                    <option value="full_name" {% if sort_by == 'full_name' %}selected{% endif %}>Name (A-Z)</option>
+                    <option value="-full_name" {% if sort_by == '-full_name' %}selected{% endif %}>Name (Z-A)</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100" title="Apply Filters"><i class="bi bi-funnel"></i></button>
+                <a href="{% url 'customers:list' %}" class="btn btn-outline-secondary btn-sm" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Customer Table -->
+<div class="card-crm">
+    <div class="table-responsive">
+        <table class="table table-crm mb-0">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Customer ID</th>
+                    <th>Company</th>
+                    <th>Phone / City</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in page_obj %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar-circle" style="width: 36px; height: 36px;">
+                                {{ customer.full_name|first|upper }}
+                            </div>
+                            <div>
+                                <a href="{% url 'customers:detail' customer.pk %}" class="fw-semibold text-dark text-decoration-none d-block">
+                                    {{ customer.full_name }}
+                                </a>
+                                <small class="text-muted">{{ customer.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><code>{{ customer.customer_id }}</code></td>
+                    <td>{{ customer.company_name|default:'Individual' }}</td>
+                    <td>
+                        <div>{{ customer.phone }}</div>
+                        <small class="text-muted">{{ customer.city|default:'-' }}</small>
+                    </td>
+                    <td>
+                        {% if customer.status == 'Active' %}
+                            <span class="badge badge-status badge-status-active">Active</span>
+                        {% else %}
+                            <span class="badge badge-status badge-status-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if customer.assigned_to %}
+                            <span class="badge bg-light text-dark border">{{ customer.assigned_to.display_name }}</span>
+                        {% else %}
+                            <span class="text-muted small">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ customer.created_at|date:'d-m-Y' }}</small></td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'customers:detail' customer.pk %}" class="btn btn-light border" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'customers:edit' customer.pk %}" class="btn btn-light border text-primary" title="Edit Customer">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if request.user.is_admin_role or request.user.is_manager_role %}
+                            <button type="button" class="btn btn-light border text-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteConfirmModal"
+                                    data-delete-url="{% url 'customers:delete' customer.pk %}"
+                                    data-item-name="{{ customer.full_name }} ({{ customer.customer_id }})"
+                                    title="Delete Customer">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="bi bi-people empty-state-icon"></i>
+                            <div class="empty-state-title">No customers found</div>
+                            <div class="empty-state-desc">Start building your pipeline by adding your first customer record.</div>
+                            <a href="{% url 'customers:create' %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-person-plus-fill me-1"></i> Add Customer
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

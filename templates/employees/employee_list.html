@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Employees - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Employee Directory</h3>
+        <p class="text-muted small mb-0">Manage CRM users, permissions, assignments, and roles</p>
+    </div>
+    {% if request.user.is_admin_role %}
+    <a href="{% url 'employees:create' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-person-plus-fill me-1"></i> Add Employee
+    </a>
+    {% endif %}
+</div>
+
+<!-- Filters Card -->
+<div class="card-crm mb-4">
+    <div class="card-crm-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Search by name, email, employee ID..." value="{{ query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="role" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Roles</option>
+                    {% for r_val, r_label in roles %}
+                    <option value="{{ r_val }}" {% if role_filter == r_val %}selected{% endif %}>{{ r_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="department" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Departments</option>
+                    {% for d_val, d_label in departments %}
+                    <option value="{{ d_val }}" {% if department_filter == d_val %}selected{% endif %}>{{ d_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Status</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+                <a href="{% url 'employees:list' %}" class="btn btn-outline-secondary btn-sm" title="Clear Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Employees Table -->
+<div class="card-crm">
+    <div class="table-responsive">
+        <table class="table table-crm mb-0">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Employee ID</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Joining Date</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in page_obj %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if emp.profile_image %}
+                                <img src="{{ emp.profile_image.url }}" alt="Profile" class="rounded-circle border" width="36" height="36" style="object-fit: cover;">
+                            {% else %}
+                                <div class="avatar-circle" style="width: 36px; height: 36px;">
+                                    {{ emp.first_name|first|default:emp.username|first|upper }}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <a href="{% url 'employees:detail' emp.pk %}" class="fw-semibold text-dark text-decoration-none d-block">
+                                    {{ emp.display_name }}
+                                </a>
+                                <small class="text-muted">{{ emp.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><code>{{ emp.employee_id|default:'-' }}</code></td>
+                    <td>
+                        <span class="badge badge-role {% if emp.role == 'Admin' %}badge-role-admin{% elif emp.role == 'Manager' %}badge-role-manager{% else %}badge-role-employee{% endif %}">
+                            {{ emp.role }}
+                        </span>
+                    </td>
+                    <td>{{ emp.department|default:'-' }}</td>
+                    <td>{{ emp.phone|default:'-' }}</td>
+                    <td>
+                        {% if emp.is_active %}
+                            <span class="badge badge-status badge-status-active">Active</span>
+                        {% else %}
+                            <span class="badge badge-status badge-status-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ emp.joining_date|date:'d-m-Y'|default:'-' }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'employees:detail' emp.pk %}" class="btn btn-sm btn-light border" title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if request.user.is_admin_role %}
+                        <a href="{% url 'employees:edit' emp.pk %}" class="btn btn-sm btn-light border text-primary" title="Edit Employee">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="bi bi-people empty-state-icon"></i>
+                            <div class="empty-state-title">No employees found</div>
+                            <div class="empty-state-desc">Try adjusting your search criteria or add a new team member.</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ employee.display_name }} - Employee Details{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <h3 class="fw-bold text-dark mb-0">{{ employee.display_name }}</h3>
+            <span class="badge badge-role {% if employee.role == 'Admin' %}badge-role-admin{% elif employee.role == 'Manager' %}badge-role-manager{% else %}badge-role-employee{% endif %}">
+                {{ employee.role }}
+            </span>
+            {% if employee.is_active %}
+                <span class="badge badge-status badge-status-active">Active</span>
+            {% else %}
+                <span class="badge badge-status badge-status-inactive">Inactive</span>
+            {% endif %}
+        </div>
+        <p class="text-muted small mb-0">ID: <code>{{ employee.employee_id|default:'N/A' }}</code> | Department: {{ employee.department }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        {% if request.user.is_admin_role %}
+        <a href="{% url 'employees:edit' employee.pk %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Edit
+        </a>
+        <form method="POST" action="{% url 'employees:toggle_status' employee.pk %}" class="d-inline">
+            {% csrf_token %}
+            {% if employee.is_active %}
+            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Deactivate this employee?')">
+                <i class="bi bi-person-x me-1"></i> Deactivate
+            </button>
+            {% else %}
+            <button type="submit" class="btn btn-outline-success btn-sm">
+                <i class="bi bi-person-check me-1"></i> Activate
+            </button>
+            {% endif %}
+        </form>
+        {% endif %}
+        <a href="{% url 'employees:list' %}" class="btn btn-light border btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">₹{{ total_sales_won|floatformat:0 }}</div>
+                <div class="stat-label">Sales Revenue (Won)</div>
+            </div>
+            <div class="stat-icon success"><i class="bi bi-currency-rupee"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ leads_converted_count }} / {{ total_leads_count }}</div>
+                <div class="stat-label">Leads Converted</div>
+            </div>
+            <div class="stat-icon info"><i class="bi bi-funnel"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ tasks_completed_count }} / {{ total_tasks_count }}</div>
+                <div class="stat-label">Tasks Completed</div>
+            </div>
+            <div class="stat-icon primary"><i class="bi bi-check2-circle"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ followups_completed_count }}</div>
+                <div class="stat-label">Completed Follow-ups</div>
+            </div>
+            <div class="stat-icon purple"><i class="bi bi-telephone-check"></i></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Contact Info -->
+    <div class="col-lg-4">
+        <div class="card-crm mb-4">
+            <div class="card-crm-header">
+                <span>Employee Information</span>
+            </div>
+            <div class="card-crm-body">
+                <div class="text-center mb-3">
+                    {% if employee.profile_image %}
+                        <img src="{{ employee.profile_image.url }}" alt="Photo" class="rounded-circle border" width="80" height="80" style="object-fit: cover;">
+                    {% else %}
+                        <div class="avatar-circle mx-auto" style="width: 80px; height: 80px; font-size: 1.8rem;">
+                            {{ employee.first_name|first|default:employee.username|first|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="small">
+                    <div class="py-1 border-bottom d-flex justify-content-between">
+                        <span class="text-muted">Username:</span>
+                        <strong>{{ employee.username }}</strong>
+                    </div>
+                    <div class="py-1 border-bottom d-flex justify-content-between">
+                        <span class="text-muted">Email:</span>
+                        <a href="mailto:{{ employee.email }}" class="text-decoration-none">{{ employee.email }}</a>
+                    </div>
+                    <div class="py-1 border-bottom d-flex justify-content-between">
+                        <span class="text-muted">Phone:</span>
+                        <strong>{{ employee.phone|default:'-' }}</strong>
+                    </div>
+                    <div class="py-1 border-bottom d-flex justify-content-between">
+                        <span class="text-muted">Department:</span>
+                        <strong>{{ employee.department }}</strong>
+                    </div>
+                    <div class="py-1 border-bottom d-flex justify-content-between">
+                        <span class="text-muted">Joining Date:</span>
+                        <strong>{{ employee.joining_date|date:'d-m-Y'|default:'-' }}</strong>
+                    </div>
+                    <div class="py-1 d-flex justify-content-between">
+                        <span class="text-muted">Location:</span>
+                        <span>{{ employee.city|default:'-' }}{% if employee.state %}, {{ employee.state }}{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments Tabs -->
+    <div class="col-lg-8">
+        <div class="card-crm">
+            <div class="card-crm-header">
+                <span>Assigned Customers & Leads</span>
+            </div>
+            <div class="card-crm-body p-0">
+                <ul class="nav nav-tabs px-3 pt-2" id="employeeTab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="customers-tab" data-bs-toggle="tab" data-bs-target="#customers-panel" type="button">Customers</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="leads-tab" data-bs-toggle="tab" data-bs-target="#leads-panel" type="button">Leads</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks-panel" type="button">Recent Tasks</button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="employeeTabContent">
+                    <div class="tab-pane fade show active" id="customers-panel">
+                        {% if assigned_customers %}
+                        <div class="list-group list-group-flush">
+                            {% for c in assigned_customers %}
+                            <a href="{% url 'customers:detail' c.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold text-dark">{{ c.full_name }}</div>
+                                    <small class="text-muted">{{ c.company_name }} | {{ c.city }}</small>
+                                </div>
+                                <span class="badge badge-status {% if c.status == 'Active' %}badge-status-active{% else %}badge-status-inactive{% endif %}">{{ c.status }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small text-center my-3">No customers currently assigned.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="leads-panel">
+                        {% if assigned_leads %}
+                        <div class="list-group list-group-flush">
+                            {% for l in assigned_leads %}
+                            <a href="{% url 'leads:detail' l.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold text-dark">{{ l.full_name }}</div>
+                                    <small class="text-muted">{{ l.company }} | Value: ₹{{ l.estimated_deal_value }}</small>
+                                </div>
+                                <span class="badge bg-secondary-subtle text-secondary">{{ l.status }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small text-center my-3">No leads currently assigned.</p>
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade" id="tasks-panel">
+                        {% if recent_tasks %}
+                        <div class="list-group list-group-flush">
+                            {% for t in recent_tasks %}
+                            <a href="{% url 'tasks:detail' t.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold text-dark">{{ t.title }}</div>
+                                    <small class="text-muted">Due: {{ t.due_date|date:'d-m-Y' }}</small>
+                                </div>
+                                <span class="badge bg-primary-subtle text-primary">{{ t.status }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small text-center my-3">No tasks currently assigned.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

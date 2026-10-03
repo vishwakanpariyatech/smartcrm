@@ -1,0 +1,125 @@
+<aside class="crm-sidebar" id="crmSidebar">
+    <!-- Brand Logo -->
+    <a href="{% url 'dashboard:index' %}" class="crm-sidebar-brand">
+        <div class="brand-icon">
+            <i class="bi bi-pie-chart-fill"></i>
+        </div>
+        <div>
+            <div class="fw-bold fs-5 leading-none">SmartCRM</div>
+            <div style="font-size: 0.65rem; color: #94a3b8; font-weight: normal; letter-spacing: 0.05em;">ENTERPRISE SUITE</div>
+        </div>
+    </a>
+
+    <!-- Navigation Menu -->
+    <ul class="crm-sidebar-menu">
+        <li class="crm-sidebar-section">Main</li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'dashboard:index' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li class="crm-sidebar-section">CRM Operations</li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'customers:list' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
+                <i class="bi bi-people-fill"></i>
+                <span>Customers</span>
+            </a>
+        </li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'leads:list' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'leads' and request.resolver_match.url_name != 'pipeline' %}active{% endif %}">
+                <i class="bi bi-funnel-fill"></i>
+                <span>Leads</span>
+            </a>
+        </li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'leads:pipeline' %}" class="crm-sidebar-link {% if request.resolver_match.url_name == 'pipeline' %}active{% endif %}">
+                <i class="bi bi-kanban-fill"></i>
+                <span>Lead Pipeline</span>
+            </a>
+        </li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'sales:list' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
+                <i class="bi bi-currency-rupee"></i>
+                <span>Sales & Deals</span>
+            </a>
+        </li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'tasks:list' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'tasks' %}active{% endif %}">
+                <i class="bi bi-check2-square"></i>
+                <span>Tasks</span>
+            </a>
+        </li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'followups:list' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'followups' and request.resolver_match.url_name != 'calendar' %}active{% endif %}">
+                <i class="bi bi-telephone-outbound-fill"></i>
+                <span>Follow-ups</span>
+            </a>
+        </li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'followups:calendar' %}" class="crm-sidebar-link {% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">
+                <i class="bi bi-calendar3"></i>
+                <span>Calendar</span>
+            </a>
+        </li>
+
+        <li class="crm-sidebar-section">Analytics & Team</li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'reports:index' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span>Reports & BI</span>
+            </a>
+        </li>
+
+        {% if request.user.is_admin_role or request.user.is_manager_role %}
+        <li class="crm-sidebar-item">
+            <a href="{% url 'employees:list' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'employees' %}active{% endif %}">
+                <i class="bi bi-person-badge-fill"></i>
+                <span>Employees</span>
+            </a>
+        </li>
+        {% endif %}
+
+        {% if request.user.is_superuser or request.user.is_admin_role %}
+        <li class="crm-sidebar-item">
+            <a href="{% url 'activity_logs:list' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'activity_logs' %}active{% endif %}">
+                <i class="bi bi-journal-text"></i>
+                <span>Activity Logs</span>
+            </a>
+        </li>
+        {% endif %}
+
+        <li class="crm-sidebar-section">System</li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'notifications:list' %}" class="crm-sidebar-link {% if request.resolver_match.app_name == 'notifications' %}active{% endif %}">
+                <i class="bi bi-bell-fill"></i>
+                <span>Notifications</span>
+                {% if unread_notifications_count > 0 %}
+                <span class="badge bg-danger rounded-pill ms-auto">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </a>
+        </li>
+        <li class="crm-sidebar-item">
+            <a href="{% url 'accounts:settings' %}" class="crm-sidebar-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                <i class="bi bi-gear-fill"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Logged In User Footer -->
+    <div class="crm-sidebar-user">
+        <div class="avatar-circle">
+            {{ request.user.first_name|first|default:request.user.username|first|upper }}
+        </div>
+        <div class="overflow-hidden">
+            <div class="text-white text-truncate fw-semibold" style="font-size: 0.85rem;">{{ request.user.display_name }}</div>
+            <div style="font-size: 0.725rem; color: #94a3b8;">
+                <span class="badge badge-role {% if request.user.role == 'Admin' %}badge-role-admin{% elif request.user.role == 'Manager' %}badge-role-manager{% else %}badge-role-employee{% endif %} py-0 px-1">
+                    {{ request.user.role }}
+                </span>
+            </div>
+        </div>
+    </div>
+</aside>

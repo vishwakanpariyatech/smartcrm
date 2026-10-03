@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Tasks - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Task Management</h3>
+        <p class="text-muted small mb-0">Organize follow-up deliverables, employee to-dos, and assignments</p>
+    </div>
+    <a href="{% url 'tasks:create' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-square me-1"></i> Add Task
+    </a>
+</div>
+
+<!-- Task KPI Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ pending_tasks }}</div>
+                <div class="stat-label">Pending Tasks</div>
+            </div>
+            <div class="stat-icon warning"><i class="bi bi-clock-history"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ in_progress_tasks }}</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-icon info"><i class="bi bi-arrow-repeat"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ completed_tasks }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-icon success"><i class="bi bi-check2-all"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ overdue_count }}</div>
+                <div class="stat-label">Overdue Tasks</div>
+            </div>
+            <div class="stat-icon danger"><i class="bi bi-exclamation-triangle"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="card-crm mb-4">
+    <div class="card-crm-body p-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Search task title or ID..." value="{{ query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for s_val, s_label in statuses %}
+                    <option value="{{ s_val }}" {% if status_filter == s_val %}selected{% endif %}>{{ s_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="priority" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Priorities</option>
+                    {% for p_val, p_label in priorities %}
+                    <option value="{{ p_val }}" {% if priority_filter == p_val %}selected{% endif %}>{{ p_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if request.user.is_admin_role or request.user.is_manager_role %}
+            <div class="col-md-2">
+                <select name="employee" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Assignees</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if employee_filter == emp.id|stringformat:'s' %}selected{% endif %}>{{ emp.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-funnel"></i></button>
+                <a href="{% url 'tasks:list' %}?overdue=true" class="btn btn-outline-danger btn-sm text-nowrap" title="Overdue Only">Overdue</a>
+                <a href="{% url 'tasks:list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tasks Table -->
+<div class="card-crm">
+    <div class="table-responsive">
+        <table class="table table-crm mb-0">
+            <thead>
+                <tr>
+                    <th width="40"></th>
+                    <th>Task</th>
+                    <th>Task ID</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Due Date</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in page_obj %}
+                <tr class="{% if task.is_overdue %}table-danger table-opacity-10{% endif %}">
+                    <td>
+                        <form action="{% url 'tasks:toggle_complete' task.pk %}" method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-link p-0 text-decoration-none" title="Toggle Completion">
+                                {% if task.status == 'Completed' %}
+                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                {% else %}
+                                    <i class="bi bi-circle text-muted fs-5"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{% url 'tasks:detail' task.pk %}" class="fw-semibold text-dark text-decoration-none d-block {% if task.status == 'Completed' %}text-decoration-line-through text-muted{% endif %}">
+                            {{ task.title }}
+                        </a>
+                        {% if task.customer %}
+                            <small class="text-muted">Customer: {{ task.customer.full_name }}</small>
+                        {% elif task.lead %}
+                            <small class="text-muted">Lead: {{ task.lead.full_name }}</small>
+                        {% endif %}
+                    </td>
+                    <td><code>{{ task.task_id }}</code></td>
+                    <td>
+                        <span class="badge {% if task.priority == 'Urgent' %}bg-danger{% elif task.priority == 'High' %}bg-warning text-dark{% elif task.priority == 'Medium' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                            {{ task.priority }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if task.status == 'Completed' %}badge-status-completed{% elif task.status == 'In Progress' %}badge-status-in-progress{% else %}badge-status-pending{% endif %}">
+                            {{ task.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ task.assigned_to.display_name }}</span>
+                    </td>
+                    <td>
+                        <span class="{% if task.is_overdue %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                            {{ task.due_date|date:'d-m-Y' }}
+                            {% if task.is_overdue %}<i class="bi bi-exclamation-circle-fill ms-1" title="Overdue"></i>{% endif %}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'tasks:detail' task.pk %}" class="btn btn-light border" title="View Task">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'tasks:edit' task.pk %}" class="btn btn-light border text-primary" title="Edit Task">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-light border text-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteConfirmModal"
+                                    data-delete-url="{% url 'tasks:delete' task.pk %}"
+                                    data-item-name="{{ task.title }} ({{ task.task_id }})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="bi bi-check2-circle empty-state-icon"></i>
+                            <div class="empty-state-title">No tasks found</div>
+                            <div class="empty-state-desc">You are all caught up! Create a new task to organize your next steps.</div>
+                            <a href="{% url 'tasks:create' %}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-square me-1"></i> Add Task
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Register Account - SmartCRM Enterprise{% endblock %}
+
+{% block auth_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5 px-3" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+    <div class="card border-0 shadow-lg" style="max-width: 620px; width: 100%; border-radius: 1.25rem;">
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div style="width: 52px; height: 52px; background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #fff; box-shadow: 0 8px 16px rgba(37,99,235,0.25);" class="mb-3">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <h3 class="fw-bold text-dark mb-1">Create Team Member Account</h3>
+                <p class="text-muted small">Register to collaborate with your organization on SmartCRM</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Username *</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Work Email *</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Department</label>
+                        {{ form.department }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small text-secondary">Password *</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-4 shadow-sm" style="border-radius: 0.5rem; height: 46px;">
+                    <i class="bi bi-check2-circle me-1"></i> Complete Registration
+                </button>
+            </form>
+
+            <div class="mt-4 pt-3 border-top text-center text-muted small">
+                Already registered? <a href="{% url 'accounts:login' %}" class="fw-semibold text-decoration-none text-primary">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">User Profile</h3>
+        <p class="text-muted small mb-0">View your account information and CRM activity summary</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Edit Profile
+        </a>
+        <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-key me-1"></i> Change Password
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Profile Card -->
+    <div class="col-lg-4">
+        <div class="card-crm text-center p-4">
+            {% if user_obj.profile_image %}
+                <img src="{{ user_obj.profile_image.url }}" alt="Profile Photo" class="rounded-circle mx-auto mb-3 border shadow-sm" width="96" height="96" style="object-fit: cover;">
+            {% else %}
+                <div class="avatar-circle mx-auto mb-3" style="width: 96px; height: 96px; font-size: 2.2rem;">
+                    {{ user_obj.first_name|first|default:user_obj.username|first|upper }}
+                </div>
+            {% endif %}
+            <h5 class="fw-bold text-dark mb-1">{{ user_obj.display_name }}</h5>
+            <p class="text-muted small mb-2">@{{ user_obj.username }}</p>
+            <div class="mb-3">
+                <span class="badge badge-role {% if user_obj.role == 'Admin' %}badge-role-admin{% elif user_obj.role == 'Manager' %}badge-role-manager{% else %}badge-role-employee{% endif %}">
+                    {{ user_obj.role }}
+                </span>
+                <span class="badge bg-secondary-subtle text-secondary ms-1">
+                    {{ user_obj.department }}
+                </span>
+            </div>
+            <div class="border-top pt-3 text-start small">
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Employee ID:</span>
+                    <strong class="text-dark">{{ user_obj.employee_id|default:'N/A' }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Account Status:</span>
+                    {% if user_obj.is_active %}
+                    <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
+                    {% else %}
+                    <span class="text-danger fw-semibold"><i class="bi bi-x-circle-fill me-1"></i>Inactive</span>
+                    {% endif %}
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Joining Date:</span>
+                    <strong class="text-dark">{{ user_obj.joining_date|date:'d-m-Y'|default:'N/A' }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details and Performance Stats -->
+    <div class="col-lg-8">
+        <!-- Performance Stat Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val">{{ assigned_customers_count }}</div>
+                        <div class="stat-label">Customers</div>
+                    </div>
+                    <div class="stat-icon primary"><i class="bi bi-people"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val">{{ assigned_leads_count }}</div>
+                        <div class="stat-label">Leads</div>
+                    </div>
+                    <div class="stat-icon info"><i class="bi bi-funnel"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val">{{ pending_tasks_count }}</div>
+                        <div class="stat-label">Pending Tasks</div>
+                    </div>
+                    <div class="stat-icon warning"><i class="bi bi-list-task"></i></div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-val">{{ won_deals_count }}</div>
+                        <div class="stat-label">Deals Won</div>
+                    </div>
+                    <div class="stat-icon success"><i class="bi bi-trophy"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Info Card -->
+        <div class="card-crm">
+            <div class="card-crm-header">
+                <span>Personal & Contact Information</span>
+            </div>
+            <div class="card-crm-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-semibold">Email Address</label>
+                        <div class="fw-semibold text-dark">{{ user_obj.email|default:'Not specified' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-semibold">Phone Number</label>
+                        <div class="fw-semibold text-dark">{{ user_obj.phone|default:'Not specified' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-semibold">City & State</label>
+                        <div class="fw-semibold text-dark">
+                            {% if user_obj.city or user_obj.state %}
+                                {{ user_obj.city|default:'' }}{% if user_obj.city and user_obj.state %}, {% endif %}{{ user_obj.state|default:'' }}
+                            {% else %}
+                                Not specified
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-semibold">Last Login</label>
+                        <div class="fw-semibold text-dark">{{ user_obj.last_login|date:'d-m-Y H:i'|default:'Never' }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="text-muted small fw-semibold">Office Address</label>
+                        <div class="text-dark">{{ user_obj.address|default:'No address specified' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

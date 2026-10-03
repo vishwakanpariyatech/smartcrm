@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">{{ title }}</h3>
+        <p class="text-muted small mb-0">Record deal parameters, stages, expected closing dates, and commercial terms</p>
+    </div>
+    <a href="{% url 'sales:list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Back to Sales
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card-crm">
+            <div class="card-crm-body p-4">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-secondary">Deal Title *</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Customer Account *</label>
+                            {{ form.customer }}
+                            {% if form.customer.errors %}<div class="text-danger small">{{ form.customer.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Associated Lead (Optional)</label>
+                            {{ form.lead }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Deal Value (₹) *</label>
+                            {{ form.deal_value }}
+                            {% if form.deal_value.errors %}<div class="text-danger small">{{ form.deal_value.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Sales Stage *</label>
+                            {{ form.stage }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Assigned Sales Rep</label>
+                            {{ form.assigned_to }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Target Closing Date *</label>
+                            {{ form.expected_closing_date }}
+                            {% if form.expected_closing_date.errors %}<div class="text-danger small">{{ form.expected_closing_date.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Actual Closing Date (If Closed)</label>
+                            {{ form.actual_closing_date }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-secondary">Scope & Terms Notes</label>
+                            {{ form.notes }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a href="{% url 'sales:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">Save Deal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

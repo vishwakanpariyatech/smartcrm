@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} - Task Details{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <h3 class="fw-bold text-dark mb-0">{{ task.title }}</h3>
+            <code>{{ task.task_id }}</code>
+            <span class="badge {% if task.status == 'Completed' %}badge-status-completed{% elif task.status == 'In Progress' %}badge-status-in-progress{% else %}badge-status-pending{% endif %}">
+                {{ task.status }}
+            </span>
+            <span class="badge {% if task.priority == 'Urgent' %}bg-danger{% elif task.priority == 'High' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                {{ task.priority }}
+            </span>
+        </div>
+        <p class="text-muted small mb-0">Due Date: {{ task.due_date|date:'d-m-Y' }} | Created by: {{ task.created_by.display_name|default:'System' }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <form action="{% url 'tasks:toggle_complete' task.pk %}" method="POST" class="d-inline">
+            {% csrf_token %}
+            {% if task.status == 'Completed' %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-counterclockwise me-1"></i> Mark Pending</button>
+            {% else %}
+            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check2-circle me-1"></i> Mark Completed</button>
+            {% endif %}
+        </form>
+        <a href="{% url 'tasks:edit' task.pk %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil me-1"></i> Edit
+        </a>
+        <button type="button" class="btn btn-outline-danger btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteConfirmModal"
+                data-delete-url="{% url 'tasks:delete' task.pk %}"
+                data-item-name="{{ task.title }} ({{ task.task_id }})">
+            <i class="bi bi-trash"></i>
+        </button>
+        <a href="{% url 'tasks:list' %}" class="btn btn-light border btn-sm">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card-crm mb-4">
+            <div class="card-crm-header">
+                <span>Task Scope & Objectives</span>
+            </div>
+            <div class="card-crm-body">
+                <div class="p-3 bg-light rounded text-dark mb-4">
+                    {{ task.description|linebreaks|default:'No specific description provided.' }}
+                </div>
+
+                <div class="row g-3 small">
+                    <div class="col-md-6">
+                        <div class="p-2 border rounded">
+                            <span class="text-muted d-block">Assigned Rep:</span>
+                            <strong class="text-dark">{{ task.assigned_to.display_name }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-2 border rounded">
+                            <span class="text-muted d-block">Created By:</span>
+                            <strong class="text-dark">{{ task.created_by.display_name|default:'System' }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-2 border rounded">
+                            <span class="text-muted d-block">Start Date:</span>
+                            <span>{{ task.start_date|date:'d-m-Y'|default:'-' }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-2 border rounded">
+                            <span class="text-muted d-block">Due Date:</span>
+                            <span class="{% if task.is_overdue %}text-danger fw-bold{% endif %}">{{ task.due_date|date:'d-m-Y' }}</span>
+                        </div>
+                    </div>
+                    {% if task.completed_at %}
+                    <div class="col-12">
+                        <div class="p-2 border rounded bg-success-subtle text-success">
+                            <i class="bi bi-check-circle-fill me-1"></i> Completed on {{ task.completed_at|date:'d-m-Y H:i' }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card-crm">
+            <div class="card-crm-header">
+                <span>Associated Records</span>
+            </div>
+            <div class="card-crm-body">
+                {% if task.customer %}
+                <div class="mb-3 p-3 border rounded">
+                    <span class="badge bg-primary-subtle text-primary mb-1">Customer Account</span>
+                    <h6 class="fw-bold mb-1"><a href="{% url 'customers:detail' task.customer.pk %}" class="text-decoration-none">{{ task.customer.full_name }}</a></h6>
+                    <small class="text-muted">{{ task.customer.company_name }} | {{ task.customer.phone }}</small>
+                </div>
+                {% endif %}
+
+                {% if task.lead %}
+                <div class="mb-3 p-3 border rounded">
+                    <span class="badge bg-info-subtle text-info mb-1">Lead Prospect</span>
+                    <h6 class="fw-bold mb-1"><a href="{% url 'leads:detail' task.lead.pk %}" class="text-decoration-none">{{ task.lead.full_name }}</a></h6>
+                    <small class="text-muted">{{ task.lead.company }} | Value: ₹{{ task.lead.estimated_deal_value }}</small>
+                </div>
+                {% endif %}
+
+                {% if not task.customer and not task.lead %}
+                <p class="text-muted small text-center my-3">No specific customer or lead linked to this task.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

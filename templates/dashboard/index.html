@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+
+{% block title %}Executive Dashboard - SmartCRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">
+            {% if request.user.role == 'Employee' %}
+                My Workspace Dashboard
+            {% elif request.user.role == 'Manager' %}
+                Management Dashboard
+            {% else %}
+                Executive Dashboard
+            {% endif %}
+        </h3>
+        <p class="text-muted small mb-0">
+            {% if request.user.role == 'Employee' %}
+                Your personal assigned customers, leads pipeline, and daily action items
+            {% elif request.user.role == 'Manager' %}
+                Department operations, team pipeline monitoring, and assigned workload
+            {% else %}
+                Full enterprise operations, global sales KPIs, and system audit trail
+            {% endif %}
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <span class="badge badge-role {% if request.user.role == 'Admin' %}badge-role-admin{% elif request.user.role == 'Manager' %}badge-role-manager{% else %}badge-role-employee{% endif %} py-2 px-3 fs-7 align-self-center">
+            <i class="bi bi-shield-check me-1"></i> {{ request.user.role }} View
+        </span>
+        <a href="{% url 'sales:create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> New Deal
+        </a>
+    </div>
+</div>
+
+<!-- 8 Live Statistic Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">₹{{ total_sales_revenue|floatformat:0 }}</div>
+                <div class="stat-label">Won Sales Revenue</div>
+            </div>
+            <div class="stat-icon success"><i class="bi bi-currency-rupee"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ total_customers }}</div>
+                <div class="stat-label">Total Customers</div>
+            </div>
+            <div class="stat-icon primary"><i class="bi bi-people-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ total_leads }}</div>
+                <div class="stat-label">Total Leads</div>
+            </div>
+            <div class="stat-icon info"><i class="bi bi-funnel-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ converted_leads }}</div>
+                <div class="stat-label">Converted Leads</div>
+            </div>
+            <div class="stat-icon purple"><i class="bi bi-person-check-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ pending_tasks }}</div>
+                <div class="stat-label">Pending Tasks</div>
+            </div>
+            <div class="stat-icon warning"><i class="bi bi-clock-history"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ overdue_tasks }}</div>
+                <div class="stat-label">Overdue Tasks</div>
+            </div>
+            <div class="stat-icon danger"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ upcoming_followups }}</div>
+                <div class="stat-label">Upcoming Follow-ups</div>
+            </div>
+            <div class="stat-icon info"><i class="bi bi-telephone-outbound-fill"></i></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-val">{{ active_employees }}</div>
+                <div class="stat-label">Active Employees</div>
+            </div>
+            <div class="stat-icon primary"><i class="bi bi-person-badge-fill"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Charts Row 1 -->
+<div class="row g-4 mb-4">
+    <!-- Monthly Sales Bar Chart -->
+    <div class="col-lg-8">
+        <div class="card-crm h-100">
+            <div class="card-crm-header">
+                <span><i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Monthly Sales Revenue (INR ₹)</span>
+                <span class="badge bg-primary-subtle text-primary">Live DB</span>
+            </div>
+            <div class="card-crm-body">
+                <canvas id="monthlySalesChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Status Doughnut Chart -->
+    <div class="col-lg-4">
+        <div class="card-crm h-100">
+            <div class="card-crm-header">
+                <span><i class="bi bi-pie-chart-fill text-info me-2"></i> Lead Pipeline Breakdown</span>
+            </div>
+            <div class="card-crm-body d-flex flex-column justify-content-center">
+                <canvas id="leadStatusChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Charts Row 2 & Customer Growth -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-12">
+        <div class="card-crm">
+            <div class="card-crm-header">
+                <span><i class="bi bi-graph-up-arrow text-success me-2"></i> Monthly Customer Growth Trend</span>
+            </div>
+            <div class="card-crm-body">
+                <canvas id="customerGrowthChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables & Live Feed Grid -->
+<div class="row g-4">
+    <!-- Recent Deals -->
+    <div class="col-lg-6">
+        <div class="card-crm h-100">
+            <div class="card-crm-header">
+                <span>Recent Deals & Contracts</span>
+                <a href="{% url 'sales:list' %}" class="small text-decoration-none">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Deal</th>
+                            <th>Customer</th>
+                            <th>Value</th>
+                            <th>Stage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for deal in recent_sales %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'sales:detail' deal.pk %}" class="fw-semibold text-dark text-decoration-none">
+                                    {{ deal.title }}
+                                </a>
+                            </td>
+                            <td>{{ deal.customer.full_name }}</td>
+                            <td class="fw-bold">₹{{ deal.deal_value|floatformat:0 }}</td>
+                            <td>
+                                <span class="badge {% if deal.stage == 'Won' %}bg-success{% elif deal.stage == 'Lost' %}bg-danger{% else %}bg-primary{% endif %}">
+                                    {{ deal.stage }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">No deals recorded yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Follow-ups -->
+    <div class="col-lg-6">
+        <div class="card-crm h-100">
+            <div class="card-crm-header">
+                <span>Upcoming Follow-ups</span>
+                <a href="{% url 'followups:list' %}" class="small text-decoration-none">View All</a>
+            </div>
+            <div class="card-crm-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for f in upcoming_followup_list %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            <span class="badge bg-info-subtle text-info mb-1">{{ f.followup_type }}</span>
+                            <div class="fw-semibold text-dark">{{ f.target_name }}</div>
+                            <small class="text-muted">{{ f.description|truncatechars:45 }}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold small text-primary">{{ f.followup_date|date:'d-m-Y' }}</div>
+                            {% if f.followup_time %}<small class="text-muted">{{ f.followup_time|time:'H:i' }}</small>{% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-4 text-center text-muted small">No upcoming follow-ups scheduled.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Customers -->
+    <div class="{% if request.user.is_superuser or request.user.is_admin_role %}col-lg-6{% else %}col-12{% endif %}">
+        <div class="card-crm h-100">
+            <div class="card-crm-header">
+                <span>New Customers</span>
+                <a href="{% url 'customers:list' %}" class="small text-decoration-none">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Customer</th>
+                            <th>Company</th>
+                            <th>City</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in recent_customers %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'customers:detail' c.pk %}" class="fw-semibold text-dark text-decoration-none">
+                                    {{ c.full_name }}
+                                </a>
+                            </td>
+                            <td>{{ c.company_name|default:'-' }}</td>
+                            <td>{{ c.city|default:'-' }}</td>
+                            <td>
+                                <span class="badge {% if c.status == 'Active' %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %}">
+                                    {{ c.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-3">No customers recorded yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if request.user.is_superuser or request.user.is_admin_role %}
+    <!-- Live Activity Feed (Super Admin Only) -->
+    <div class="col-lg-6">
+        <div class="card-crm h-100">
+            <div class="card-crm-header d-flex justify-content-between align-items-center">
+                <span>Recent System Activity</span>
+                <span class="badge bg-primary-subtle text-primary fw-medium" style="font-size: 0.72rem;">Super Admin</span>
+            </div>
+            <div class="card-crm-body">
+                {% if recent_activities %}
+                <ul class="timeline">
+                    {% for act in recent_activities %}
+                    <li class="timeline-item">
+                        <div class="timeline-badge"></div>
+                        <div class="timeline-content">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="small text-dark">{{ act.action }} {{ act.model_name }}</strong>
+                                <small class="text-muted">{{ act.timestamp|timesince }} ago</small>
+                            </div>
+                            <p class="small text-muted mb-0">
+                                <strong>{{ act.object_repr }}</strong> by {{ act.user.display_name|default:'System' }}
+                            </p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted small text-center my-3">No activity logs recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Monthly Sales Chart
+    const salesLabels = {{ sales_labels_json|safe }};
+    const salesData = {{ sales_data_json|safe }};
+    const ctxSales = document.getElementById('monthlySalesChart');
+    if (ctxSales) {
+        new Chart(ctxSales, {
+            type: 'bar',
+            data: {
+                labels: salesLabels,
+                datasets: [{
+                    label: 'Won Revenue (₹)',
+                    data: salesData,
+                    backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                    borderRadius: 6,
+                    maxBarThickness: 45
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ₹' + Number(context.raw).toLocaleString('en-IN');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + Number(value).toLocaleString('en-IN');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Lead Status Breakdown Chart
+    const leadLabels = {{ lead_labels_json|safe }};
+    const leadData = {{ lead_data_json|safe }};
+    const ctxLead = document.getElementById('leadStatusChart');
+    if (ctxLead) {
+        new Chart(ctxLead, {
+            type: 'doughnut',
+            data: {
+                labels: leadLabels,
+                datasets: [{
+                    data: leadData,
+                    backgroundColor: [
+                        '#3b82f6', '#06b6d4', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    }
+
+    // 3. Customer Growth Trend Chart
+    const growthLabels = {{ growth_labels_json|safe }};
+    const growthData = {{ growth_data_json|safe }};
+    const ctxGrowth = document.getElementById('customerGrowthChart');
+    if (ctxGrowth) {
+        new Chart(ctxGrowth, {
+            type: 'line',
+            data: {
+                labels: growthLabels,
+                datasets: [{
+                    label: 'New Customers Acquired',
+                    data: growthData,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 2,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
