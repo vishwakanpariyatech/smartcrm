@@ -40,6 +40,23 @@
                     icon.className = 'bi bi-moon-stars fs-6';
                 }
             }
+            var authIcon = document.getElementById('authThemeIcon');
+            var authBtn = document.getElementById('authThemeToggleBtn');
+            if (authIcon) {
+                if (theme === 'dark') {
+                    authIcon.className = 'bi bi-sun-fill fs-6 text-warning';
+                    if (authBtn) {
+                        authBtn.style.background = 'rgba(255,255,255,0.08)';
+                        authBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+                    }
+                } else {
+                    authIcon.className = 'bi bi-moon-stars fs-6 text-dark';
+                    if (authBtn) {
+                        authBtn.style.background = 'rgba(0,0,0,0.05)';
+                        authBtn.style.borderColor = 'rgba(0,0,0,0.1)';
+                    }
+                }
+            }
         }
 
         function toggleCRMTheme() {
