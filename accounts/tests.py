@@ -65,3 +65,33 @@ class AccountsAuthenticationTests(TestCase):
         response = self.client.get(reverse('accounts:profile'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "testemp")
+
+    def test_successful_registration(self):
+        response = self.client.post(reverse('accounts:register'), {
+            'username': 'newemployee',
+            'email': 'newemployee@example.com',
+            'first_name': 'New',
+            'last_name': 'Employee',
+            'department': 'Support',
+            'phone': '9876543210',
+            'password': 'SecurePassword123',
+            'confirm_password': 'SecurePassword123'
+        })
+        self.assertRedirects(response, reverse('accounts:login'))
+        created = User.objects.filter(username='newemployee').first()
+        self.assertIsNotNone(created)
+        self.assertEqual(created.role, User.Role.EMPLOYEE)
+        self.assertTrue(created.is_active)
+        self.assertTrue(created.check_password('SecurePassword123'))
+
+    def test_registration_validation_errors(self):
+        response = self.client.post(reverse('accounts:register'), {
+            'username': 'testadmin',  # duplicate
+            'email': 'admin@test.com',  # duplicate
+            'password': 'short',  # < 8
+            'confirm_password': 'mismatch'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "already taken")
+        self.assertContains(response, "already exists")
+        self.assertContains(response, "Passwords do not match")

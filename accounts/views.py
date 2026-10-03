@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.conf import settings
-from .forms import LoginForm, UserProfileForm, EmployeeCreateForm
+from .forms import LoginForm, UserProfileForm, EmployeeCreateForm, RegistrationForm
 from .models import User
 from activity_logs.models import log_activity
 
@@ -116,17 +116,15 @@ def register_view(request):
         return redirect('dashboard:index')
 
     if request.method == 'POST':
-        form = EmployeeCreateForm(request.POST, request.FILES)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.role = User.Role.EMPLOYEE  # Self-registered users default to Employee
-            user.save()
+            user = form.save()
             log_activity(user, 'Self-registered', 'User', user.id, user.display_name)
-            messages.success(request, "Registration successful! You may now log in.")
+            messages.success(request, f"Welcome to SmartCRM! Account '{user.username}' created successfully. Please sign in.")
             return redirect('accounts:login')
         else:
-            messages.error(request, "Registration failed. Please check the provided information.")
+            messages.error(request, "Registration failed. Please check the errors highlighted below.")
     else:
-        form = EmployeeCreateForm()
+        form = RegistrationForm()
 
     return render(request, 'accounts/register.html', {'form': form})
